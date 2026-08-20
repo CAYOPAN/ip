@@ -5,7 +5,7 @@ import java.util.Scanner;
  *
  * <p>Each line entered by the user is stored as a task, unless it is one of
  * the special commands {@code list}, {@code todo}, {@code deadline},
- * {@code mark}, {@code unmark}, or
+ * {@code event}, {@code mark}, {@code unmark}, or
  * {@code bye}. Tasks are kept only while the program is running, as required
  * for this level.</p>
  */
@@ -101,6 +101,33 @@ public class Baymax {
                     System.out.println(" Sorry, a deadline needs a description and a due date.");
                 } else if (taskCount < MAX_TASKS) {
                     tasks[taskCount] = new Deadline(description, by);
+                    taskCount++;
+                    System.out.println(" Got it. I've added this task:");
+                    System.out.println("   " + tasks[taskCount - 1]);
+                    System.out.println(" Now you have " + taskCount + " tasks in the list.");
+                } else {
+                    System.out.println(" Sorry, your task list is full.");
+                }
+            } else if (command.equals("event") || command.startsWith("event ")) {
+                String eventDetails = command.substring("event".length()).trim();
+                int fromMarkerIndex = eventDetails.indexOf("/from");
+                int toMarkerIndex = fromMarkerIndex < 0
+                        ? -1
+                        : eventDetails.indexOf("/to", fromMarkerIndex + "/from".length());
+                String description = fromMarkerIndex < 0
+                        ? ""
+                        : eventDetails.substring(0, fromMarkerIndex).trim();
+                String from = fromMarkerIndex < 0 || toMarkerIndex < 0
+                        ? ""
+                        : eventDetails.substring(fromMarkerIndex + "/from".length(), toMarkerIndex).trim();
+                String to = toMarkerIndex < 0
+                        ? ""
+                        : eventDetails.substring(toMarkerIndex + "/to".length()).trim();
+
+                if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
+                    System.out.println(" Sorry, an event needs a description, start time, and end time.");
+                } else if (taskCount < MAX_TASKS) {
+                    tasks[taskCount] = new Event(description, from, to);
                     taskCount++;
                     System.out.println(" Got it. I've added this task:");
                     System.out.println("   " + tasks[taskCount - 1]);
