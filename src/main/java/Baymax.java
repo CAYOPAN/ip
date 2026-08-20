@@ -4,7 +4,7 @@ import java.util.Scanner;
  * Runs Baymax's text user interface.
  *
  * <p>Each line entered by the user is stored as a task, unless it is one of
- * the special commands {@code list}, {@code mark}, {@code unmark}, or
+ * the special commands {@code list}, {@code todo}, {@code mark}, {@code unmark}, or
  * {@code bye}. Tasks are kept only while the program is running, as required
  * for this level.</p>
  */
@@ -43,8 +43,7 @@ public class Baymax {
             if (command.equals("list")) {
                 System.out.println(" Here are the tasks in your list:");
                 for (int i = 0; i < taskCount; i++) {
-                    System.out.println(" " + (i + 1) + ".[" + tasks[i].getStatusIcon() + "] "
-                            + tasks[i].getDescription());
+                    System.out.println(" " + (i + 1) + "." + tasks[i]);
                 }
             } else if (command.startsWith("mark ")) {
                 String taskNumberText = command.substring("mark ".length()).trim();
@@ -53,7 +52,7 @@ public class Baymax {
                     if (taskIndex >= 0 && taskIndex < taskCount) {
                         tasks[taskIndex].markAsDone();
                         System.out.println(" Nice! I've marked this task as done:");
-                        System.out.println("   [X] " + tasks[taskIndex].getDescription());
+                        System.out.println("   " + tasks[taskIndex]);
                     } else {
                         System.out.println(" Sorry, that task does not exist.");
                     }
@@ -67,12 +66,25 @@ public class Baymax {
                     if (taskIndex >= 0 && taskIndex < taskCount) {
                         tasks[taskIndex].markAsUndone();
                         System.out.println(" OK, I've marked this task as not done yet:");
-                        System.out.println("   [ ] " + tasks[taskIndex].getDescription());
+                        System.out.println("   " + tasks[taskIndex]);
                     } else {
                         System.out.println(" Sorry, that task does not exist.");
                     }
                 } catch (NumberFormatException exception) {
                     System.out.println(" Sorry, please provide a valid task number.");
+                }
+            } else if (command.startsWith("todo ")) {
+                String description = command.substring("todo".length()).trim();
+                if (description.isEmpty()) {
+                    System.out.println(" Sorry, a todo must have a description.");
+                } else if (taskCount < MAX_TASKS) {
+                    tasks[taskCount] = new Todo(description);
+                    taskCount++;
+                    System.out.println(" Got it. I've added this task:");
+                    System.out.println("   " + tasks[taskCount - 1]);
+                    System.out.println(" Now you have " + taskCount + " tasks in the list.");
+                } else {
+                    System.out.println(" Sorry, your task list is full.");
                 }
             } else if (taskCount < MAX_TASKS) {
                 tasks[taskCount] = new Task(command);
