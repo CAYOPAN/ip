@@ -4,7 +4,8 @@ import java.util.Scanner;
  * Runs Baymax's text user interface.
  *
  * <p>Each line entered by the user is stored as a task, unless it is one of
- * the special commands {@code list}, {@code todo}, {@code mark}, {@code unmark}, or
+ * the special commands {@code list}, {@code todo}, {@code deadline},
+ * {@code mark}, {@code unmark}, or
  * {@code bye}. Tasks are kept only while the program is running, as required
  * for this level.</p>
  */
@@ -79,6 +80,27 @@ public class Baymax {
                     System.out.println(" Sorry, a todo must have a description.");
                 } else if (taskCount < MAX_TASKS) {
                     tasks[taskCount] = new Todo(description);
+                    taskCount++;
+                    System.out.println(" Got it. I've added this task:");
+                    System.out.println("   " + tasks[taskCount - 1]);
+                    System.out.println(" Now you have " + taskCount + " tasks in the list.");
+                } else {
+                    System.out.println(" Sorry, your task list is full.");
+                }
+            } else if (command.equals("deadline") || command.startsWith("deadline ")) {
+                String deadlineDetails = command.substring("deadline".length()).trim();
+                int byMarkerIndex = deadlineDetails.indexOf("/by");
+                String description = byMarkerIndex < 0
+                        ? ""
+                        : deadlineDetails.substring(0, byMarkerIndex).trim();
+                String by = byMarkerIndex < 0
+                        ? ""
+                        : deadlineDetails.substring(byMarkerIndex + "/by".length()).trim();
+
+                if (description.isEmpty() || by.isEmpty()) {
+                    System.out.println(" Sorry, a deadline needs a description and a due date.");
+                } else if (taskCount < MAX_TASKS) {
+                    tasks[taskCount] = new Deadline(description, by);
                     taskCount++;
                     System.out.println(" Got it. I've added this task:");
                     System.out.println("   " + tasks[taskCount - 1]);
