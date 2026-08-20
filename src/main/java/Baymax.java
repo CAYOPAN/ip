@@ -87,7 +87,7 @@ public class Baymax {
                 } else {
                     System.out.println(" Sorry, your task list is full.");
                 }
-            } else if (command.equals("deadline") || command.startsWith("deadline ")) {
+            } else if (command.startsWith("deadline ")) {
                 String deadlineDetails = command.substring("deadline".length()).trim();
                 int byMarkerIndex = deadlineDetails.indexOf("/by");
                 String description = byMarkerIndex < 0
@@ -108,7 +108,7 @@ public class Baymax {
                 } else {
                     System.out.println(" Sorry, your task list is full.");
                 }
-            } else if (command.equals("event") || command.startsWith("event ")) {
+            } else if (command.startsWith("event ")) {
                 String eventDetails = command.substring("event".length()).trim();
                 int fromMarkerIndex = eventDetails.indexOf("/from");
                 int toMarkerIndex = fromMarkerIndex < 0
