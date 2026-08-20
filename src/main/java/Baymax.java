@@ -4,8 +4,8 @@ import java.util.Scanner;
  * Runs Baymax's text user interface.
  *
  * <p>Each line entered by the user is stored as a task, unless it is one of
- * the special commands {@code list} or {@code bye}. Tasks are kept only while
- * the program is running, as required for this level.</p>
+ * the special commands {@code list}, {@code mark}, or {@code bye}. Tasks are
+ * kept only while the program is running, as required for this level.</p>
  */
 public class Baymax {
     private static final int MAX_TASKS = 100;
@@ -27,6 +27,7 @@ public class Baymax {
 
         Scanner scanner = new Scanner(System.in);
         String[] tasks = new String[MAX_TASKS];
+        boolean[] taskDone = new boolean[MAX_TASKS];
         int taskCount = 0;
 
         while (scanner.hasNextLine()) {
@@ -40,8 +41,24 @@ public class Baymax {
             }
 
             if (command.equals("list")) {
+                System.out.println(" Here are the tasks in your list:");
                 for (int i = 0; i < taskCount; i++) {
-                    System.out.println(" " + (i + 1) + ". " + tasks[i]);
+                    String status = taskDone[i] ? "[X]" : "[ ]";
+                    System.out.println(" " + (i + 1) + "." + status + " " + tasks[i]);
+                }
+            } else if (command.startsWith("mark ")) {
+                String taskNumberText = command.substring("mark ".length()).trim();
+                try {
+                    int taskIndex = Integer.parseInt(taskNumberText) - 1;
+                    if (taskIndex >= 0 && taskIndex < taskCount) {
+                        taskDone[taskIndex] = true;
+                        System.out.println(" Nice! I've marked this task as done:");
+                        System.out.println("   [X] " + tasks[taskIndex]);
+                    } else {
+                        System.out.println(" Sorry, that task does not exist.");
+                    }
+                } catch (NumberFormatException exception) {
+                    System.out.println(" Sorry, please provide a valid task number.");
                 }
             } else if (taskCount < MAX_TASKS) {
                 tasks[taskCount] = command;
