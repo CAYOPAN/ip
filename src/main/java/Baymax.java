@@ -1,3 +1,9 @@
+import java.util.Scanner;
+
+/**
+ * Reads commands from the user, echoes them, and exits when the user enters
+ * {@code bye}.
+ */
 public class Baymax {
     public static void main(String[] args) {
         System.out.print("""
@@ -12,8 +18,21 @@ public class Baymax {
                 Hello! I'm Baymax. Your personal task companion.
                 What can I do for you?
                 ____________________________________________________________
-                Bye. Hope to see you again soon!
-                ____________________________________________________________
                 """);
+
+        Scanner scanner = new Scanner(System.in);
+        while (scanner.hasNextLine()) {
+            String command = scanner.nextLine();
+
+            System.out.println("____________________________________________________________");
+            if (command.equals("bye")) {
+                System.out.println(" Bye. Hope to see you again soon!");
+                System.out.println("____________________________________________________________");
+                break;
+            }
+
+            System.out.println(" " + command);
+            System.out.println("____________________________________________________________");
+        }
     }
 }
