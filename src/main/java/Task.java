@@ -48,4 +48,17 @@ public class Task {
     public String getDescription() {
         return description;
     }
+
+    /**
+     * Returns the standard text representation of a task.
+     *
+     * <p>Subclasses can prepend their task-type marker to this representation
+     * while reusing the completion status and description formatting.</p>
+     *
+     * @return the completion marker and task description
+     */
+    @Override
+    public String toString() {
+        return "[" + getStatusIcon() + "] " + description;
+    }
 }
