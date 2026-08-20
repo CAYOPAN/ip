@@ -4,8 +4,9 @@ import java.util.Scanner;
  * Runs Baymax's text user interface.
  *
  * <p>Each line entered by the user is stored as a task, unless it is one of
- * the special commands {@code list}, {@code mark}, or {@code bye}. Tasks are
- * kept only while the program is running, as required for this level.</p>
+ * the special commands {@code list}, {@code mark}, {@code unmark}, or
+ * {@code bye}. Tasks are kept only while the program is running, as required
+ * for this level.</p>
  */
 public class Baymax {
     private static final int MAX_TASKS = 100;
@@ -54,6 +55,20 @@ public class Baymax {
                         taskDone[taskIndex] = true;
                         System.out.println(" Nice! I've marked this task as done:");
                         System.out.println("   [X] " + tasks[taskIndex]);
+                    } else {
+                        System.out.println(" Sorry, that task does not exist.");
+                    }
+                } catch (NumberFormatException exception) {
+                    System.out.println(" Sorry, please provide a valid task number.");
+                }
+            } else if (command.startsWith("unmark ")) {
+                String taskNumberText = command.substring("unmark ".length()).trim();
+                try {
+                    int taskIndex = Integer.parseInt(taskNumberText) - 1;
+                    if (taskIndex >= 0 && taskIndex < taskCount) {
+                        taskDone[taskIndex] = false;
+                        System.out.println(" OK, I've marked this task as not done yet:");
+                        System.out.println("   [ ] " + tasks[taskIndex]);
                     } else {
                         System.out.println(" Sorry, that task does not exist.");
                     }
