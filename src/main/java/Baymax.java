@@ -97,10 +97,10 @@ public class Baymax {
                             ? ""
                             : deadlineDetails.substring(byMarkerIndex + "/by".length()).trim();
 
-                    if (description.isEmpty()) {
+                    if (byMarkerIndex < 0 || by.isEmpty()) {
+                        throw new EmptyByException();
+                    } else if (description.isEmpty()) {
                         throw new EmptyDescriptionException("deadline");
-                    } else if (by.isEmpty()) {
-
                     } else if (taskCount < MAX_TASKS) {
                         tasks[taskCount] = new Deadline(description, by);
                         taskCount++;
@@ -129,9 +129,9 @@ public class Baymax {
                     if (description.isEmpty()) {
                         throw new EmptyDescriptionException("event");
                     } else if (from.isEmpty()) {
-
+                        throw new EmptyFromException();
                     } else if (to.isEmpty()) {
-
+                        throw new EmptyToException();
                     } else if (taskCount < MAX_TASKS) {
                         tasks[taskCount] = new Event(description, from, to);
                         taskCount++;
