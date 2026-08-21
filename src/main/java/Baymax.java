@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -10,8 +11,6 @@ import java.util.Scanner;
  * for this level.</p>
  */
 public class Baymax {
-    private static final int MAX_TASKS = 100;
-
     public static void main(String[] args) {
         System.out.print("""
                 ____________________________________________________________
@@ -28,8 +27,7 @@ public class Baymax {
                 """);
 
         Scanner scanner = new Scanner(System.in);
-        Task[] tasks = new Task[MAX_TASKS];
-        int taskCount = 0;
+        ArrayList<Task> tasks = new ArrayList<>();
 
         while (scanner.hasNextLine()) {
             try {
@@ -43,17 +41,17 @@ public class Baymax {
 
                 if (command.equals("list")) {
                     System.out.println(" Here are the tasks in your list:");
-                    for (int i = 0; i < taskCount; i++) {
-                        System.out.println(" " + (i + 1) + "." + tasks[i]);
+                    for (int i = 0; i < tasks.size(); i++) {
+                        System.out.println(" " + (i + 1) + "." + tasks.get(i));
                     }
                 } else if (command.startsWith("mark ")) {
                     String taskNumberText = command.substring("mark ".length()).trim();
                     try {
                         int taskIndex = Integer.parseInt(taskNumberText) - 1;
-                        if (taskIndex >= 0 && taskIndex < taskCount) {
-                            tasks[taskIndex].markAsDone();
+                        if (taskIndex >= 0 && taskIndex < tasks.size()) {
+                            tasks.get(taskIndex).markAsDone();
                             System.out.println(" Nice! I've marked this task as done:");
-                            System.out.println("   " + tasks[taskIndex]);
+                            System.out.println("   " + tasks.get(taskIndex));
                         } else {
                             System.out.println(" Sorry, that task does not exist.");
                         }
@@ -64,10 +62,27 @@ public class Baymax {
                     String taskNumberText = command.substring("unmark ".length()).trim();
                     try {
                         int taskIndex = Integer.parseInt(taskNumberText) - 1;
-                        if (taskIndex >= 0 && taskIndex < taskCount) {
-                            tasks[taskIndex].markAsUndone();
+                        if (taskIndex >= 0 && taskIndex < tasks.size()) {
+                            tasks.get(taskIndex).markAsUndone();
                             System.out.println(" OK, I've marked this task as not done yet:");
-                            System.out.println("   " + tasks[taskIndex]);
+                            System.out.println("   " + tasks.get(taskIndex));
+                        } else {
+                            System.out.println(" Sorry, that task does not exist.");
+                        }
+                    } catch (NumberFormatException exception) {
+                        System.out.println(" Sorry, please provide a valid task number.");
+                    }
+                } else if (command.equals("delete") || command.startsWith("delete ")) {
+                    String taskNumberText = command.equals("delete")
+                            ? ""
+                            : command.substring("delete ".length()).trim();
+                    try {
+                        int taskIndex = Integer.parseInt(taskNumberText) - 1;
+                        if (taskIndex >= 0 && taskIndex < tasks.size()) {
+                            Task removedTask = tasks.remove(taskIndex);
+                            System.out.println(" Noted. I've removed this task:");
+                            System.out.println("   " + removedTask);
+                            System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
                         } else {
                             System.out.println(" Sorry, that task does not exist.");
                         }
@@ -78,14 +93,11 @@ public class Baymax {
                     String description = command.substring("todo".length()).trim();
                     if (description.isEmpty()) {
                         throw new EmptyDescriptionException("todo");
-                    } else if (taskCount < MAX_TASKS) {
-                        tasks[taskCount] = new Todo(description);
-                        taskCount++;
-                        System.out.println(" Got it. I've added this task:");
-                        System.out.println("   " + tasks[taskCount - 1]);
-                        System.out.println(" Now you have " + taskCount + " tasks in the list.");
                     } else {
-                        System.out.println(" Sorry, your task list is full.");
+                        tasks.add(new Todo(description));
+                        System.out.println(" Got it. I've added this task:");
+                        System.out.println("   " + tasks.get(tasks.size() - 1));
+                        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
                     }
                 } else if (command.startsWith("deadline ")) {
                     String deadlineDetails = command.substring("deadline".length()).trim();
@@ -101,14 +113,11 @@ public class Baymax {
                         throw new EmptyByException();
                     } else if (description.isEmpty()) {
                         throw new EmptyDescriptionException("deadline");
-                    } else if (taskCount < MAX_TASKS) {
-                        tasks[taskCount] = new Deadline(description, by);
-                        taskCount++;
-                        System.out.println(" Got it. I've added this task:");
-                        System.out.println("   " + tasks[taskCount - 1]);
-                        System.out.println(" Now you have " + taskCount + " tasks in the list.");
                     } else {
-                        System.out.println(" Sorry, your task list is full.");
+                        tasks.add(new Deadline(description, by));
+                        System.out.println(" Got it. I've added this task:");
+                        System.out.println("   " + tasks.get(tasks.size() - 1));
+                        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
                     }
                 } else if (command.startsWith("event ")) {
                     String eventDetails = command.substring("event".length()).trim();
@@ -132,14 +141,11 @@ public class Baymax {
                         throw new EmptyFromException();
                     } else if (to.isEmpty()) {
                         throw new EmptyToException();
-                    } else if (taskCount < MAX_TASKS) {
-                        tasks[taskCount] = new Event(description, from, to);
-                        taskCount++;
-                        System.out.println(" Got it. I've added this task:");
-                        System.out.println("   " + tasks[taskCount - 1]);
-                        System.out.println(" Now you have " + taskCount + " tasks in the list.");
                     } else {
-                        System.out.println(" Sorry, your task list is full.");
+                        tasks.add(new Event(description, from, to));
+                        System.out.println(" Got it. I've added this task:");
+                        System.out.println("   " + tasks.get(tasks.size() - 1));
+                        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
                     }
                 } else {
                     throw new InvalidCommandException();

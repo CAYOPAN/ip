@@ -176,10 +176,59 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+### TC-005: Delete a task
+
+- Aim: Verify deleting a task removes it and updates the remaining task numbering and count.
+- Command: `javac -d out src/main/java/*.java && java -cp out Baymax`
+- Inputs:
+```text
+todo buy milk
+todo submit report
+delete 1
+list
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello! I'm Baymax. Your personal task companion.
+What can I do for you?
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] buy milk
+ Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] submit report
+ Now you have 2 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Noted. I've removed this task:
+   [T][ ] buy milk
+ Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Here are the tasks in your list:
+ 1.[T][ ] submit report
+____________________________________________________________
+____________________________________________________________
+ Bye. Hope to see you again soon!
+____________________________________________________________
+```
+
 ## Latest test session
 
-- Recorded: 2026-08-21T11:59:06+08:00
-- Result: PASS (4 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
+- Recorded: 2026-08-21T12:35:54+08:00
+- Result: FAIL (3 passed, 1 failed, 1 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text
 === TC-001: Exit immediately ===
@@ -317,6 +366,36 @@ Hello! I'm Baymax. Your personal task companion.
 What can I do for you?
 ____________________________________________________________
 ____________________________________________________________
+ Sorry, a deadline needs a due date.
+____________________________________________________________
+____________________________________________________________
+ Sorry, an event needs a start time.
+____________________________________________________________
+____________________________________________________________
+ Sorry, please provide a valid task number.
+____________________________________________________________
+____________________________________________________________
+ Sorry, that task does not exist.
+____________________________________________________________
+____________________________________________________________
+ Bye. Hope to see you again soon!
+____________________________________________________________
+
+Status: FAIL
+Detail: console output did not match
+Expected output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello! I'm Baymax. Your personal task companion.
+What can I do for you?
+____________________________________________________________
+____________________________________________________________
  Sorry, a deadline needs a description and a due date.
 ____________________________________________________________
 ____________________________________________________________
@@ -332,5 +411,47 @@ ____________________________________________________________
  Bye. Hope to see you again soon!
 ____________________________________________________________
 
-Status: PASS
+Actual output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello! I'm Baymax. Your personal task companion.
+What can I do for you?
+____________________________________________________________
+____________________________________________________________
+ Sorry, a deadline needs a due date.
+____________________________________________________________
+____________________________________________________________
+ Sorry, an event needs a start time.
+____________________________________________________________
+____________________________________________________________
+ Sorry, please provide a valid task number.
+____________________________________________________________
+____________________________________________________________
+ Sorry, that task does not exist.
+____________________________________________________________
+____________________________________________________________
+ Bye. Hope to see you again soon!
+____________________________________________________________
+
+
+=== TC-005: Delete a task ===
+Command: javac -d out src/main/java/*.java && java -cp out Baymax
+Console input:
+todo buy milk
+todo submit report
+delete 1
+list
+bye
+
+Console output:
+<empty>
+Status: SKIPPED
+Detail: not run after the first failure
+Console input/output: not run
 ````
