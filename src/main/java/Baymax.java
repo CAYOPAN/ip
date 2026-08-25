@@ -1,6 +1,3 @@
-import java.io.FileNotFoundException;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -27,75 +24,6 @@ public class Baymax {
         }
     }
 
-    private static void writeTaskListToFile(String filePath, ArrayList<Task> taskList) throws IOException {
-        File file = new File(filePath);
-        File parent = file.getParentFile();
-
-        if (parent != null) {
-            parent.mkdirs();
-        }
-
-        FileWriter fw = new FileWriter(filePath);
-
-        for (int i = 0; i < taskList.size(); i++) {
-            fw.write(taskList.get(i).toStorageString());
-            fw.write(System.lineSeparator());
-        }
-
-        fw.close();
-    }
-
-    private static ArrayList<Task> readFileToTaskList(String filePath) {
-        ArrayList<Task> taskList = new ArrayList<>();
-
-        try (Scanner scanner = new Scanner(new File(filePath))) {
-            while (scanner.hasNextLine()) {
-                String[] fields = scanner.nextLine().split("\\s*\\|\\s*", -1);
-                if (fields.length < 3) {
-                    continue;
-                }
-
-                String type = fields[0];
-                boolean isDone;
-                if (fields[1].equals("1")) {
-                    isDone = true;
-                } else if (fields[1].equals("0")) {
-                    isDone = false;
-                } else {
-                    continue;
-                }
-
-                Task task;
-                if (type.equals("T") && fields.length == 3) {
-                    task = new Todo(fields[2]);
-                } else if (type.equals("D") && fields.length == 4) {
-                    try {
-                        task = new Deadline(fields[2], LocalDate.parse(fields[3]));
-                    } catch (DateTimeParseException exception) {
-                        continue;
-                    }
-                } else if (type.equals("E") && fields.length == 5) {
-                    try {
-                        task = new Event(fields[2], LocalDate.parse(fields[3]), LocalDate.parse(fields[4]));
-                    } catch (DateTimeParseException exception) {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-
-                if (isDone) {
-                    task.markAsDone();
-                }
-                taskList.add(task);
-            }
-        } catch (IOException io) {
-            return new ArrayList<>();
-        }
-
-        return taskList;
-    }
-
     public static void main(String[] args) {
         System.out.print("""
                 ____________________________________________________________
@@ -112,7 +40,8 @@ public class Baymax {
                 """);
 
         Scanner scanner = new Scanner(System.in);
-        ArrayList<Task> tasks = Baymax.readFileToTaskList("./data/Baymax.txt");
+        Storage storage = new Storage("./data/Baymax.txt");
+        ArrayList<Task> tasks = storage.load();
 
         while (scanner.hasNextLine()) {
             try {
@@ -122,7 +51,7 @@ public class Baymax {
                 if (command.equals("bye")) {
                     System.out.println(" Bye. Hope to see you again soon!");
                     try {
-                        Baymax.writeTaskListToFile("./data/Baymax.txt", tasks);
+                        storage.save(tasks);
                     } catch (IOException io) {
                         System.out.println("Can not save tasks list. Previous tasks list can not be retrieve.");
                     }
