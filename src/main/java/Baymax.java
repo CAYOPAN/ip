@@ -1,16 +1,83 @@
+import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
  * Runs Baymax's text user interface.
  *
- * <p>Each line entered by the user is stored as a task, unless it is one of
+ * <p>
+ * Each line entered by the user is stored as a task, unless it is one of
  * the special commands {@code list}, {@code todo}, {@code deadline},
  * {@code event}, {@code mark}, {@code unmark}, or
  * {@code bye}. Tasks are kept only while the program is running, as required
- * for this level.</p>
+ * for this level.
+ * </p>
  */
 public class Baymax {
+    private static void writeTaskListToFile(String filePath, ArrayList<Task> taskList) throws IOException {
+        File file = new File(filePath);
+        File parent = file.getParentFile();
+
+        if (parent != null) {
+            parent.mkdirs();
+        }
+
+        FileWriter fw = new FileWriter(filePath);
+
+        for (int i = 0; i < taskList.size(); i++) {
+            fw.write(taskList.get(i).toStorageString());
+            fw.write(System.lineSeparator());
+        }
+
+        fw.close();
+    }
+
+    private static ArrayList<Task> readFileToTaskList(String filePath) {
+        ArrayList<Task> taskList = new ArrayList<>();
+
+        try (Scanner scanner = new Scanner(new File(filePath))) {
+            while (scanner.hasNextLine()) {
+                String[] fields = scanner.nextLine().split("\\s*\\|\\s*", -1);
+                if (fields.length < 3) {
+                    continue;
+                }
+
+                String type = fields[0];
+                boolean isDone;
+                if (fields[1].equals("1")) {
+                    isDone = true;
+                } else if (fields[1].equals("0")) {
+                    isDone = false;
+                } else {
+                    continue;
+                }
+
+                Task task;
+                if (type.equals("T") && fields.length == 3) {
+                    task = new Todo(fields[2]);
+                } else if (type.equals("D") && fields.length == 4) {
+                    task = new Deadline(fields[2], fields[3]);
+                } else if (type.equals("E") && fields.length == 5) {
+                    task = new Event(fields[2], fields[3], fields[4]);
+                } else {
+                    continue;
+                }
+
+                if (isDone) {
+                    task.markAsDone();
+                }
+                taskList.add(task);
+            }
+        } catch (IOException io) {
+            return new ArrayList<>();
+        }
+
+        return taskList;
+    }
+
     public static void main(String[] args) {
         System.out.print("""
                 ____________________________________________________________
@@ -27,7 +94,7 @@ public class Baymax {
                 """);
 
         Scanner scanner = new Scanner(System.in);
-        ArrayList<Task> tasks = new ArrayList<>();
+        ArrayList<Task> tasks = Baymax.readFileToTaskList("./data/Baymax.txt");
 
         while (scanner.hasNextLine()) {
             try {
@@ -36,6 +103,12 @@ public class Baymax {
                 System.out.println("____________________________________________________________");
                 if (command.equals("bye")) {
                     System.out.println(" Bye. Hope to see you again soon!");
+                    try {
+                        Baymax.writeTaskListToFile("./data/Baymax.txt", tasks);
+                    } catch (IOException io) {
+                        System.out.println("Can not save tasks list. Previous tasks list can not be retrieve.");
+                    }
+                    scanner.close();
                     break;
                 }
 
