@@ -2,6 +2,8 @@ import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -17,6 +19,14 @@ import java.util.Scanner;
  * </p>
  */
 public class Baymax {
+    private static LocalDate parseDate(String dateText) {
+        try {
+            return LocalDate.parse(dateText);
+        } catch (DateTimeParseException exception) {
+            throw new BaymaxException(" Sorry, dates must use the format yyyy-MM-dd.");
+        }
+    }
+
     private static void writeTaskListToFile(String filePath, ArrayList<Task> taskList) throws IOException {
         File file = new File(filePath);
         File parent = file.getParentFile();
@@ -59,9 +69,17 @@ public class Baymax {
                 if (type.equals("T") && fields.length == 3) {
                     task = new Todo(fields[2]);
                 } else if (type.equals("D") && fields.length == 4) {
-                    task = new Deadline(fields[2], fields[3]);
+                    try {
+                        task = new Deadline(fields[2], LocalDate.parse(fields[3]));
+                    } catch (DateTimeParseException exception) {
+                        continue;
+                    }
                 } else if (type.equals("E") && fields.length == 5) {
-                    task = new Event(fields[2], fields[3], fields[4]);
+                    try {
+                        task = new Event(fields[2], LocalDate.parse(fields[3]), LocalDate.parse(fields[4]));
+                    } catch (DateTimeParseException exception) {
+                        continue;
+                    }
                 } else {
                     continue;
                 }
@@ -187,7 +205,7 @@ public class Baymax {
                     } else if (description.isEmpty()) {
                         throw new EmptyDescriptionException("deadline");
                     } else {
-                        tasks.add(new Deadline(description, by));
+                        tasks.add(new Deadline(description, parseDate(by)));
                         System.out.println(" Got it. I've added this task:");
                         System.out.println("   " + tasks.get(tasks.size() - 1));
                         System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
@@ -215,7 +233,7 @@ public class Baymax {
                     } else if (to.isEmpty()) {
                         throw new EmptyToException();
                     } else {
-                        tasks.add(new Event(description, from, to));
+                        tasks.add(new Event(description, parseDate(from), parseDate(to)));
                         System.out.println(" Got it. I've added this task:");
                         System.out.println("   " + tasks.get(tasks.size() - 1));
                         System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
