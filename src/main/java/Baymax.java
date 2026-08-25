@@ -1,3 +1,7 @@
+import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -11,6 +15,32 @@ import java.util.Scanner;
  * for this level.</p>
  */
 public class Baymax {
+    private static void writeTaskListToFile(String filePath, ArrayList<Task> taskList) throws IOException {
+        File file = new File(filePath);
+        File parent = file.getParentFile();
+
+        if (parent != null) {
+            parent.mkdirs();
+        }
+
+        FileWriter fw = new FileWriter(filePath);
+
+        for (int i = 0; i < taskList.size(); i++) {
+            fw.write(taskList.get(i).toStorageString());
+            fw.write(System.lineSeparator());
+        }
+
+        fw.close();
+    }
+
+    private static void readFileToTaskList(String filePath, ArrayList<Task> taskList) throws FileNotFoundException {
+        File f = new File(filePath);
+        Scanner s = new Scanner(f);
+        while (s.hasNext()) {
+            System.out.println(s.nextLine());
+        }
+    }
+
     public static void main(String[] args) {
         System.out.print("""
                 ____________________________________________________________
@@ -36,6 +66,11 @@ public class Baymax {
                 System.out.println("____________________________________________________________");
                 if (command.equals("bye")) {
                     System.out.println(" Bye. Hope to see you again soon!");
+                    try {
+                        Baymax.writeTaskListToFile("./data/Baymax.txt", tasks);
+                    } catch (IOException io) {
+                        System.out.println("Can not save tasks list. Previous tasks list can not be retrieve.");
+                    }
                     break;
                 }
 

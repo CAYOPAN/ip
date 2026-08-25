@@ -61,4 +61,14 @@ public class Task {
     public String toString() {
         return "[" + getStatusIcon() + "] " + description;
     }
+
+    /**
+     * Returns the task fields in the format used when saving tasks.
+     *
+     * @return the completion status followed by the task description
+     */
+    public String toStorageString() {
+        return (isDone ? "1" : "0") + " | " + description;
+    }
+
 }
