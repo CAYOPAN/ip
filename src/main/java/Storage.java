@@ -16,7 +16,7 @@ public class Storage {
         this.filePath = filePath;
     }
 
-    public void save(ArrayList<Task> taskList) throws IOException {
+    public void save(TaskList taskList) throws IOException {
         File file = new File(filePath);
         File parent = file.getParentFile();
 
@@ -25,14 +25,15 @@ public class Storage {
         }
 
         try (FileWriter fileWriter = new FileWriter(filePath)) {
-            for (Task task : taskList) {
+            for (int i = 0; i < taskList.size(); i++) {
+                Task task = taskList.get(i);
                 fileWriter.write(task.toStorageString());
                 fileWriter.write(System.lineSeparator());
             }
         }
     }
 
-    public ArrayList<Task> load() {
+    public TaskList load() {
         ArrayList<Task> taskList = new ArrayList<>();
 
         try (Scanner scanner = new Scanner(new File(filePath))) {
@@ -74,9 +75,9 @@ public class Storage {
                 taskList.add(task);
             }
         } catch (IOException io) {
-            return new ArrayList<>();
+            return new TaskList();
         }
 
-        return taskList;
+        return new TaskList(taskList);
     }
 }

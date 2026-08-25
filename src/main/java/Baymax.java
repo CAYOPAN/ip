@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -41,7 +40,7 @@ public class Baymax {
 
         Scanner scanner = new Scanner(System.in);
         Storage storage = new Storage("./data/Baymax.txt");
-        ArrayList<Task> tasks = storage.load();
+        TaskList tasks = storage.load();
 
         while (scanner.hasNextLine()) {
             try {
