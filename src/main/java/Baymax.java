@@ -77,13 +77,10 @@ public class Baymax {
                         ui.showTaskNotFound();
                     }
                 } else if (commandType == Parser.CommandType.TODO) {
-                    String description = command.substring("todo".length()).trim();
-                    if (description.isEmpty()) {
-                        throw new EmptyDescriptionException("todo");
-                    } else {
-                        tasks.add(new Todo(description));
-                        ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
-                    }
+                    String description =
+                            Parser.parseTodoDescription(command);
+                    tasks.add(new Todo(description));
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                 } else if (commandType == Parser.CommandType.DEADLINE) {
                     String deadlineDetails = command.substring("deadline".length()).trim();
                     int byMarkerIndex = deadlineDetails.indexOf("/by");

@@ -81,4 +81,21 @@ public final class Parser {
                     " Sorry, please provide a valid task number.");
         }
     }
+
+    /**
+     * Extracts a todo description.
+     *
+     * @param command the complete todo command
+     * @return the todo description
+     */
+    public static String parseTodoDescription(String command) {
+        String description =
+                command.substring("todo".length()).trim();
+
+        if (description.isEmpty()) {
+            throw new EmptyDescriptionException("todo");
+        }
+
+        return description;
+    }
 }
