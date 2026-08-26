@@ -54,8 +54,7 @@ public class Baymax {
                         int taskIndex = Integer.parseInt(taskNumberText) - 1;
                         if (taskIndex >= 0 && taskIndex < tasks.size()) {
                             tasks.get(taskIndex).markAsDone();
-                            System.out.println(" Nice! I've marked this task as done:");
-                            System.out.println("   " + tasks.get(taskIndex));
+                            ui.showTaskMarked(tasks.get(taskIndex));
                         } else {
                             System.out.println(" Sorry, that task does not exist.");
                         }
@@ -68,8 +67,7 @@ public class Baymax {
                         int taskIndex = Integer.parseInt(taskNumberText) - 1;
                         if (taskIndex >= 0 && taskIndex < tasks.size()) {
                             tasks.get(taskIndex).markAsUndone();
-                            System.out.println(" OK, I've marked this task as not done yet:");
-                            System.out.println("   " + tasks.get(taskIndex));
+                            ui.showTaskUnmarked(tasks.get(taskIndex));
                         } else {
                             System.out.println(" Sorry, that task does not exist.");
                         }
@@ -84,9 +82,7 @@ public class Baymax {
                         int taskIndex = Integer.parseInt(taskNumberText) - 1;
                         if (taskIndex >= 0 && taskIndex < tasks.size()) {
                             Task removedTask = tasks.remove(taskIndex);
-                            System.out.println(" Noted. I've removed this task:");
-                            System.out.println("   " + removedTask);
-                            System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+                            ui.showTaskDeleted(removedTask, tasks.size());
                         } else {
                             System.out.println(" Sorry, that task does not exist.");
                         }
@@ -99,9 +95,7 @@ public class Baymax {
                         throw new EmptyDescriptionException("todo");
                     } else {
                         tasks.add(new Todo(description));
-                        System.out.println(" Got it. I've added this task:");
-                        System.out.println("   " + tasks.get(tasks.size() - 1));
-                        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+                        ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                     }
                 } else if (command.startsWith("deadline ")) {
                     String deadlineDetails = command.substring("deadline".length()).trim();
@@ -119,9 +113,7 @@ public class Baymax {
                         throw new EmptyDescriptionException("deadline");
                     } else {
                         tasks.add(new Deadline(description, parseDate(by)));
-                        System.out.println(" Got it. I've added this task:");
-                        System.out.println("   " + tasks.get(tasks.size() - 1));
-                        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+                        ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                     }
                 } else if (command.startsWith("event ")) {
                     String eventDetails = command.substring("event".length()).trim();
@@ -147,9 +139,7 @@ public class Baymax {
                         throw new EmptyToException();
                     } else {
                         tasks.add(new Event(description, parseDate(from), parseDate(to)));
-                        System.out.println(" Got it. I've added this task:");
-                        System.out.println("   " + tasks.get(tasks.size() - 1));
-                        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+                        ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                     }
                 } else {
                     throw new InvalidCommandException();
