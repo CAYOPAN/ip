@@ -1,5 +1,9 @@
+package baymax.ui;
+
+import baymax.task.Task;
+import baymax.task.TaskList;
+
 import java.util.Scanner;
-import java.util.ArrayList;
 
 /**
  * Handles console input for Baymax.

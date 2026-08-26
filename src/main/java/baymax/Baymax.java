@@ -1,3 +1,16 @@
+package baymax;
+
+import baymax.exception.BaymaxException;
+import baymax.exception.InvalidCommandException;
+import baymax.parser.Parser;
+import baymax.storage.Storage;
+import baymax.task.Deadline;
+import baymax.task.Event;
+import baymax.task.Task;
+import baymax.task.TaskList;
+import baymax.task.Todo;
+import baymax.ui.Ui;
+
 import java.io.IOException;
 
 /**

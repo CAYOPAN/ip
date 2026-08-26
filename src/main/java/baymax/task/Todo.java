@@ -1,3 +1,5 @@
+package baymax.task;
+
 /**
  * Represents a task that does not have an associated date or time.
  */

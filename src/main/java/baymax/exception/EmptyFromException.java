@@ -1,3 +1,5 @@
+package baymax.exception;
+
 /**
  * Represents an event command with no start-time description.
  */

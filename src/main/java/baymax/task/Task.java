@@ -1,3 +1,5 @@
+package baymax.task;
+
 /**
  * Represents a task in Baymax's task list.
  *
