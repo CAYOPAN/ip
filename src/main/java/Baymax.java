@@ -22,7 +22,8 @@ public class Baymax {
         while (ui.hasNextCommand()) {
             try {
                 String command = ui.readCommand();
-                Parser.CommandType commandType = Parser.getCommandType(command);
+                Parser.CommandType commandType =
+                        Parser.getCommandType(command);
 
                 ui.showSeparator();
                 if (commandType == Parser.CommandType.BYE) {
