@@ -1,3 +1,5 @@
+package baymax.exception;
+
 /**
  * Represents a deadline command with no due-date description.
  */
