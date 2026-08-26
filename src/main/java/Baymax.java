@@ -38,13 +38,13 @@ public class Baymax {
                 ____________________________________________________________
                 """);
 
-        Scanner scanner = new Scanner(System.in);
+        Ui ui = new Ui();
         Storage storage = new Storage("./data/Baymax.txt");
         TaskList tasks = storage.load();
 
-        while (scanner.hasNextLine()) {
+        while (ui.hasNextCommand()) {
             try {
-                String command = scanner.nextLine();
+                String command = ui.readCommand();
 
                 System.out.println("____________________________________________________________");
                 if (command.equals("bye")) {
@@ -54,7 +54,7 @@ public class Baymax {
                     } catch (IOException io) {
                         System.out.println("Can not save tasks list. Previous tasks list can not be retrieve.");
                     }
-                    scanner.close();
+                    ui.close();
                     break;
                 }
 
