@@ -33,9 +33,10 @@ public class Baymax {
         while (ui.hasNextCommand()) {
             try {
                 String command = ui.readCommand();
+                Parser.CommandType commandType = Parser.getCommandType(command);
 
                 ui.showSeparator();
-                if (command.equals("bye")) {
+                if (commandType == Parser.CommandType.BYE) {
                     ui.showGoodbye();
                     try {
                         storage.save(tasks);
@@ -46,9 +47,9 @@ public class Baymax {
                     break;
                 }
 
-                if (command.equals("list")) {
+                if (commandType == Parser.CommandType.LIST) {
                     ui.showTaskList(tasks);
-                } else if (command.startsWith("mark ")) {
+                } else if (commandType == Parser.CommandType.MARK) {
                     String taskNumberText = command.substring("mark ".length()).trim();
                     try {
                         int taskIndex = Integer.parseInt(taskNumberText) - 1;
@@ -61,7 +62,7 @@ public class Baymax {
                     } catch (NumberFormatException exception) {
                         ui.showInvalidTaskNumber();
                     }
-                } else if (command.startsWith("unmark ")) {
+                } else if (commandType == Parser.CommandType.UNMARK) {
                     String taskNumberText = command.substring("unmark ".length()).trim();
                     try {
                         int taskIndex = Integer.parseInt(taskNumberText) - 1;
@@ -74,7 +75,7 @@ public class Baymax {
                     } catch (NumberFormatException exception) {
                         ui.showInvalidTaskNumber();
                     }
-                } else if (command.equals("delete") || command.startsWith("delete ")) {
+                } else if (commandType == Parser.CommandType.DELETE) {
                     String taskNumberText = command.equals("delete")
                             ? ""
                             : command.substring("delete ".length()).trim();
@@ -89,7 +90,7 @@ public class Baymax {
                     } catch (NumberFormatException exception) {
                         ui.showInvalidTaskNumber();
                     }
-                } else if (command.startsWith("todo ")) {
+                } else if (commandType == Parser.CommandType.TODO) {
                     String description = command.substring("todo".length()).trim();
                     if (description.isEmpty()) {
                         throw new EmptyDescriptionException("todo");
@@ -97,7 +98,7 @@ public class Baymax {
                         tasks.add(new Todo(description));
                         ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                     }
-                } else if (command.startsWith("deadline ")) {
+                } else if (commandType == Parser.CommandType.DEADLINE) {
                     String deadlineDetails = command.substring("deadline".length()).trim();
                     int byMarkerIndex = deadlineDetails.indexOf("/by");
                     String description = byMarkerIndex < 0
@@ -115,7 +116,7 @@ public class Baymax {
                         tasks.add(new Deadline(description, parseDate(by)));
                         ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                     }
-                } else if (command.startsWith("event ")) {
+                } else if (commandType == Parser.CommandType.EVENT) {
                     String eventDetails = command.substring("event".length()).trim();
                     int fromMarkerIndex = eventDetails.indexOf("/from");
                     int toMarkerIndex = fromMarkerIndex < 0
