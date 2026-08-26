@@ -50,45 +50,31 @@ public class Baymax {
                 if (commandType == Parser.CommandType.LIST) {
                     ui.showTaskList(tasks);
                 } else if (commandType == Parser.CommandType.MARK) {
-                    String taskNumberText = command.substring("mark ".length()).trim();
-                    try {
-                        int taskIndex = Integer.parseInt(taskNumberText) - 1;
-                        if (taskIndex >= 0 && taskIndex < tasks.size()) {
-                            tasks.get(taskIndex).markAsDone();
-                            ui.showTaskMarked(tasks.get(taskIndex));
-                        } else {
-                            ui.showTaskNotFound();
-                        }
-                    } catch (NumberFormatException exception) {
-                        ui.showInvalidTaskNumber();
+                    int taskIndex =
+                            Parser.parseTaskIndex(command, commandType);
+                    if (taskIndex >= 0 && taskIndex < tasks.size()) {
+                        tasks.get(taskIndex).markAsDone();
+                        ui.showTaskMarked(tasks.get(taskIndex));
+                    } else {
+                        ui.showTaskNotFound();
                     }
                 } else if (commandType == Parser.CommandType.UNMARK) {
-                    String taskNumberText = command.substring("unmark ".length()).trim();
-                    try {
-                        int taskIndex = Integer.parseInt(taskNumberText) - 1;
-                        if (taskIndex >= 0 && taskIndex < tasks.size()) {
-                            tasks.get(taskIndex).markAsUndone();
-                            ui.showTaskUnmarked(tasks.get(taskIndex));
-                        } else {
-                            ui.showTaskNotFound();
-                        }
-                    } catch (NumberFormatException exception) {
-                        ui.showInvalidTaskNumber();
+                    int taskIndex =
+                            Parser.parseTaskIndex(command, commandType);
+                    if (taskIndex >= 0 && taskIndex < tasks.size()) {
+                        tasks.get(taskIndex).markAsUndone();
+                        ui.showTaskUnmarked(tasks.get(taskIndex));
+                    } else {
+                        ui.showTaskNotFound();
                     }
                 } else if (commandType == Parser.CommandType.DELETE) {
-                    String taskNumberText = command.equals("delete")
-                            ? ""
-                            : command.substring("delete ".length()).trim();
-                    try {
-                        int taskIndex = Integer.parseInt(taskNumberText) - 1;
-                        if (taskIndex >= 0 && taskIndex < tasks.size()) {
-                            Task removedTask = tasks.remove(taskIndex);
-                            ui.showTaskDeleted(removedTask, tasks.size());
-                        } else {
-                            ui.showTaskNotFound();
-                        }
-                    } catch (NumberFormatException exception) {
-                        ui.showInvalidTaskNumber();
+                    int taskIndex =
+                            Parser.parseTaskIndex(command, commandType);
+                    if (taskIndex >= 0 && taskIndex < tasks.size()) {
+                        Task removedTask = tasks.remove(taskIndex);
+                        ui.showTaskDeleted(removedTask, tasks.size());
+                    } else {
+                        ui.showTaskNotFound();
                     }
                 } else if (commandType == Parser.CommandType.TODO) {
                     String description = command.substring("todo".length()).trim();
