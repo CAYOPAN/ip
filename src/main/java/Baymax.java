@@ -1,11 +1,4 @@
-import java.io.FileNotFoundException;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * Runs Baymax's text user interface.
@@ -19,232 +12,89 @@ import java.util.Scanner;
  * </p>
  */
 public class Baymax {
-    private static LocalDate parseDate(String dateText) {
-        try {
-            return LocalDate.parse(dateText);
-        } catch (DateTimeParseException exception) {
-            throw new BaymaxException(" Sorry, dates must use the format yyyy-MM-dd.");
-        }
-    }
-
-    private static void writeTaskListToFile(String filePath, ArrayList<Task> taskList) throws IOException {
-        File file = new File(filePath);
-        File parent = file.getParentFile();
-
-        if (parent != null) {
-            parent.mkdirs();
-        }
-
-        FileWriter fw = new FileWriter(filePath);
-
-        for (int i = 0; i < taskList.size(); i++) {
-            fw.write(taskList.get(i).toStorageString());
-            fw.write(System.lineSeparator());
-        }
-
-        fw.close();
-    }
-
-    private static ArrayList<Task> readFileToTaskList(String filePath) {
-        ArrayList<Task> taskList = new ArrayList<>();
-
-        try (Scanner scanner = new Scanner(new File(filePath))) {
-            while (scanner.hasNextLine()) {
-                String[] fields = scanner.nextLine().split("\\s*\\|\\s*", -1);
-                if (fields.length < 3) {
-                    continue;
-                }
-
-                String type = fields[0];
-                boolean isDone;
-                if (fields[1].equals("1")) {
-                    isDone = true;
-                } else if (fields[1].equals("0")) {
-                    isDone = false;
-                } else {
-                    continue;
-                }
-
-                Task task;
-                if (type.equals("T") && fields.length == 3) {
-                    task = new Todo(fields[2]);
-                } else if (type.equals("D") && fields.length == 4) {
-                    try {
-                        task = new Deadline(fields[2], LocalDate.parse(fields[3]));
-                    } catch (DateTimeParseException exception) {
-                        continue;
-                    }
-                } else if (type.equals("E") && fields.length == 5) {
-                    try {
-                        task = new Event(fields[2], LocalDate.parse(fields[3]), LocalDate.parse(fields[4]));
-                    } catch (DateTimeParseException exception) {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-
-                if (isDone) {
-                    task.markAsDone();
-                }
-                taskList.add(task);
-            }
-        } catch (IOException io) {
-            return new ArrayList<>();
-        }
-
-        return taskList;
-    }
-
     public static void main(String[] args) {
-        System.out.print("""
-                ____________________________________________________________
-                BBBB   aaa   y   y  m     m   aaa   x   x
-                B   B a   a  y   y  mm   mm  a   a  x   x
-                B   B a   a   y y   m m m m  a   a   x x
-                BBBB  aaaaa    y    m  m  m  aaaaa    x
-                B   B a   a    y    m     m  a   a   x x
-                B   B a   a    y    m     m  a   a  x   x
-                BBBB  a   a    y    m     m  a   a  x   x
-                Hello! I'm Baymax. Your personal task companion.
-                What can I do for you?
-                ____________________________________________________________
-                """);
+        Ui ui = new Ui();
+        Storage storage = new Storage("./data/Baymax.txt");
+        TaskList tasks = storage.load();
 
-        Scanner scanner = new Scanner(System.in);
-        ArrayList<Task> tasks = Baymax.readFileToTaskList("./data/Baymax.txt");
+        ui.showWelcome();
 
-        while (scanner.hasNextLine()) {
+        while (ui.hasNextCommand()) {
             try {
-                String command = scanner.nextLine();
+                String command = ui.readCommand();
+                Parser.CommandType commandType =
+                        Parser.getCommandType(command);
 
-                System.out.println("____________________________________________________________");
-                if (command.equals("bye")) {
-                    System.out.println(" Bye. Hope to see you again soon!");
+                ui.showSeparator();
+                if (commandType == Parser.CommandType.BYE) {
+                    ui.showGoodbye();
                     try {
-                        Baymax.writeTaskListToFile("./data/Baymax.txt", tasks);
+                        storage.save(tasks);
                     } catch (IOException io) {
-                        System.out.println("Can not save tasks list. Previous tasks list can not be retrieve.");
+                        ui.showSaveError();
                     }
-                    scanner.close();
+                    ui.close();
                     break;
                 }
 
-                if (command.equals("list")) {
-                    System.out.println(" Here are the tasks in your list:");
-                    for (int i = 0; i < tasks.size(); i++) {
-                        System.out.println(" " + (i + 1) + "." + tasks.get(i));
-                    }
-                } else if (command.startsWith("mark ")) {
-                    String taskNumberText = command.substring("mark ".length()).trim();
-                    try {
-                        int taskIndex = Integer.parseInt(taskNumberText) - 1;
-                        if (taskIndex >= 0 && taskIndex < tasks.size()) {
-                            tasks.get(taskIndex).markAsDone();
-                            System.out.println(" Nice! I've marked this task as done:");
-                            System.out.println("   " + tasks.get(taskIndex));
-                        } else {
-                            System.out.println(" Sorry, that task does not exist.");
-                        }
-                    } catch (NumberFormatException exception) {
-                        System.out.println(" Sorry, please provide a valid task number.");
-                    }
-                } else if (command.startsWith("unmark ")) {
-                    String taskNumberText = command.substring("unmark ".length()).trim();
-                    try {
-                        int taskIndex = Integer.parseInt(taskNumberText) - 1;
-                        if (taskIndex >= 0 && taskIndex < tasks.size()) {
-                            tasks.get(taskIndex).markAsUndone();
-                            System.out.println(" OK, I've marked this task as not done yet:");
-                            System.out.println("   " + tasks.get(taskIndex));
-                        } else {
-                            System.out.println(" Sorry, that task does not exist.");
-                        }
-                    } catch (NumberFormatException exception) {
-                        System.out.println(" Sorry, please provide a valid task number.");
-                    }
-                } else if (command.equals("delete") || command.startsWith("delete ")) {
-                    String taskNumberText = command.equals("delete")
-                            ? ""
-                            : command.substring("delete ".length()).trim();
-                    try {
-                        int taskIndex = Integer.parseInt(taskNumberText) - 1;
-                        if (taskIndex >= 0 && taskIndex < tasks.size()) {
-                            Task removedTask = tasks.remove(taskIndex);
-                            System.out.println(" Noted. I've removed this task:");
-                            System.out.println("   " + removedTask);
-                            System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
-                        } else {
-                            System.out.println(" Sorry, that task does not exist.");
-                        }
-                    } catch (NumberFormatException exception) {
-                        System.out.println(" Sorry, please provide a valid task number.");
-                    }
-                } else if (command.startsWith("todo ")) {
-                    String description = command.substring("todo".length()).trim();
-                    if (description.isEmpty()) {
-                        throw new EmptyDescriptionException("todo");
+                if (commandType == Parser.CommandType.LIST) {
+                    ui.showTaskList(tasks);
+                } else if (commandType == Parser.CommandType.MARK) {
+                    int taskIndex =
+                            Parser.parseTaskIndex(command, commandType);
+                    if (taskIndex >= 0 && taskIndex < tasks.size()) {
+                        tasks.get(taskIndex).markAsDone();
+                        ui.showTaskMarked(tasks.get(taskIndex));
                     } else {
-                        tasks.add(new Todo(description));
-                        System.out.println(" Got it. I've added this task:");
-                        System.out.println("   " + tasks.get(tasks.size() - 1));
-                        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+                        ui.showTaskNotFound();
                     }
-                } else if (command.startsWith("deadline ")) {
-                    String deadlineDetails = command.substring("deadline".length()).trim();
-                    int byMarkerIndex = deadlineDetails.indexOf("/by");
-                    String description = byMarkerIndex < 0
-                            ? ""
-                            : deadlineDetails.substring(0, byMarkerIndex).trim();
-                    String by = byMarkerIndex < 0
-                            ? ""
-                            : deadlineDetails.substring(byMarkerIndex + "/by".length()).trim();
+                } else if (commandType == Parser.CommandType.UNMARK) {
+                    int taskIndex =
+                            Parser.parseTaskIndex(command, commandType);
+                    if (taskIndex >= 0 && taskIndex < tasks.size()) {
+                        tasks.get(taskIndex).markAsUndone();
+                        ui.showTaskUnmarked(tasks.get(taskIndex));
+                    } else {
+                        ui.showTaskNotFound();
+                    }
+                } else if (commandType == Parser.CommandType.DELETE) {
+                    int taskIndex =
+                            Parser.parseTaskIndex(command, commandType);
+                    if (taskIndex >= 0 && taskIndex < tasks.size()) {
+                        Task removedTask = tasks.remove(taskIndex);
+                        ui.showTaskDeleted(removedTask, tasks.size());
+                    } else {
+                        ui.showTaskNotFound();
+                    }
+                } else if (commandType == Parser.CommandType.TODO) {
+                    String description =
+                            Parser.parseTodoDescription(command);
+                    tasks.add(new Todo(description));
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
+                } else if (commandType == Parser.CommandType.DEADLINE) {
+                    Parser.DeadlineDetails deadline =
+                            Parser.parseDeadline(command);
 
-                    if (byMarkerIndex < 0 || by.isEmpty()) {
-                        throw new EmptyByException();
-                    } else if (description.isEmpty()) {
-                        throw new EmptyDescriptionException("deadline");
-                    } else {
-                        tasks.add(new Deadline(description, parseDate(by)));
-                        System.out.println(" Got it. I've added this task:");
-                        System.out.println("   " + tasks.get(tasks.size() - 1));
-                        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
-                    }
-                } else if (command.startsWith("event ")) {
-                    String eventDetails = command.substring("event".length()).trim();
-                    int fromMarkerIndex = eventDetails.indexOf("/from");
-                    int toMarkerIndex = fromMarkerIndex < 0
-                            ? -1
-                            : eventDetails.indexOf("/to", fromMarkerIndex + "/from".length());
-                    String description = fromMarkerIndex < 0
-                            ? ""
-                            : eventDetails.substring(0, fromMarkerIndex).trim();
-                    String from = fromMarkerIndex < 0 || toMarkerIndex < 0
-                            ? ""
-                            : eventDetails.substring(fromMarkerIndex + "/from".length(), toMarkerIndex).trim();
-                    String to = toMarkerIndex < 0
-                            ? ""
-                            : eventDetails.substring(toMarkerIndex + "/to".length()).trim();
+                    tasks.add(new Deadline(
+                            deadline.description(),
+                            deadline.date()));
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
+                } else if (commandType == Parser.CommandType.EVENT) {
+                    Parser.EventDetails event =
+                            Parser.parseEvent(command);
 
-                    if (description.isEmpty()) {
-                        throw new EmptyDescriptionException("event");
-                    } else if (from.isEmpty()) {
-                        throw new EmptyFromException();
-                    } else if (to.isEmpty()) {
-                        throw new EmptyToException();
-                    } else {
-                        tasks.add(new Event(description, parseDate(from), parseDate(to)));
-                        System.out.println(" Got it. I've added this task:");
-                        System.out.println("   " + tasks.get(tasks.size() - 1));
-                        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
-                    }
+                    tasks.add(new Event(
+                            event.description(),
+                            event.from(),
+                            event.to()));
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                 } else {
                     throw new InvalidCommandException();
                 }
             } catch (BaymaxException e) {
-                System.out.println(e.getMessage());
+                ui.showError(e.getMessage());
             } finally {
-                System.out.println("____________________________________________________________");
+                ui.showSeparator();
             }
 
         }
