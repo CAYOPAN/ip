@@ -131,4 +131,27 @@ public class Ui {
         System.out.println("   " + task);
         System.out.println(" Now you have " + taskCount + " tasks in the list.");
     }
+
+    /**
+     * Displays an invalid task-number message.
+     */
+    public void showInvalidTaskNumber() {
+        System.out.println(" Sorry, please provide a valid task number.");
+    }
+
+    /**
+     * Displays a missing-task message.
+     */
+    public void showTaskNotFound() {
+        System.out.println(" Sorry, that task does not exist.");
+    }
+
+    /**
+     * Displays an application error.
+     *
+     * @param message the error message
+     */
+    public void showError(String message) {
+        System.out.println(message);
+    }
 }

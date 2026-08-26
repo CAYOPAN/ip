@@ -56,10 +56,10 @@ public class Baymax {
                             tasks.get(taskIndex).markAsDone();
                             ui.showTaskMarked(tasks.get(taskIndex));
                         } else {
-                            System.out.println(" Sorry, that task does not exist.");
+                            ui.showTaskNotFound();
                         }
                     } catch (NumberFormatException exception) {
-                        System.out.println(" Sorry, please provide a valid task number.");
+                        ui.showInvalidTaskNumber();
                     }
                 } else if (command.startsWith("unmark ")) {
                     String taskNumberText = command.substring("unmark ".length()).trim();
@@ -69,10 +69,10 @@ public class Baymax {
                             tasks.get(taskIndex).markAsUndone();
                             ui.showTaskUnmarked(tasks.get(taskIndex));
                         } else {
-                            System.out.println(" Sorry, that task does not exist.");
+                            ui.showTaskNotFound();
                         }
                     } catch (NumberFormatException exception) {
-                        System.out.println(" Sorry, please provide a valid task number.");
+                        ui.showInvalidTaskNumber();
                     }
                 } else if (command.equals("delete") || command.startsWith("delete ")) {
                     String taskNumberText = command.equals("delete")
@@ -84,10 +84,10 @@ public class Baymax {
                             Task removedTask = tasks.remove(taskIndex);
                             ui.showTaskDeleted(removedTask, tasks.size());
                         } else {
-                            System.out.println(" Sorry, that task does not exist.");
+                            ui.showTaskNotFound();
                         }
                     } catch (NumberFormatException exception) {
-                        System.out.println(" Sorry, please provide a valid task number.");
+                        ui.showInvalidTaskNumber();
                     }
                 } else if (command.startsWith("todo ")) {
                     String description = command.substring("todo".length()).trim();
@@ -145,7 +145,7 @@ public class Baymax {
                     throw new InvalidCommandException();
                 }
             } catch (BaymaxException e) {
-                System.out.println(e.getMessage());
+                ui.showError(e.getMessage());
             } finally {
                 ui.showSeparator();
             }
