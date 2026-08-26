@@ -47,10 +47,7 @@ public class Baymax {
                 }
 
                 if (command.equals("list")) {
-                    System.out.println(" Here are the tasks in your list:");
-                    for (int i = 0; i < tasks.size(); i++) {
-                        System.out.println(" " + (i + 1) + "." + tasks.get(i));
-                    }
+                    ui.showTaskList(tasks);
                 } else if (command.startsWith("mark ")) {
                     String taskNumberText = command.substring("mark ".length()).trim();
                     try {

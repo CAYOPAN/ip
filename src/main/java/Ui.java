@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.ArrayList;
 
 /**
  * Handles console input for Baymax.
@@ -72,5 +73,18 @@ public class Ui {
     public void showSaveError() {
         System.out.println(
                 "Can not save tasks list. Previous tasks list can not be retrieve.");
+    }
+
+    /**
+     * Displays all tasks in the task list.
+     *
+     * @param tasks the tasks to display
+     */
+    public void showTaskList(TaskList tasks) {
+        System.out.println(" Here are the tasks in your list:");
+
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println(" " + (i + 1) + "." + tasks.get(i));
+        }
     }
 }
