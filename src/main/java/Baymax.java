@@ -1,7 +1,4 @@
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.Scanner;
 
 /**
  * Runs Baymax's text user interface.
@@ -15,14 +12,6 @@ import java.util.Scanner;
  * </p>
  */
 public class Baymax {
-    private static LocalDate parseDate(String dateText) {
-        try {
-            return LocalDate.parse(dateText);
-        } catch (DateTimeParseException exception) {
-            throw new BaymaxException(" Sorry, dates must use the format yyyy-MM-dd.");
-        }
-    }
-
     public static void main(String[] args) {
         Ui ui = new Ui();
         Storage storage = new Storage("./data/Baymax.txt");
@@ -82,49 +71,22 @@ public class Baymax {
                     tasks.add(new Todo(description));
                     ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                 } else if (commandType == Parser.CommandType.DEADLINE) {
-                    String deadlineDetails = command.substring("deadline".length()).trim();
-                    int byMarkerIndex = deadlineDetails.indexOf("/by");
-                    String description = byMarkerIndex < 0
-                            ? ""
-                            : deadlineDetails.substring(0, byMarkerIndex).trim();
-                    String by = byMarkerIndex < 0
-                            ? ""
-                            : deadlineDetails.substring(byMarkerIndex + "/by".length()).trim();
+                    Parser.DeadlineDetails deadline =
+                            Parser.parseDeadline(command);
 
-                    if (byMarkerIndex < 0 || by.isEmpty()) {
-                        throw new EmptyByException();
-                    } else if (description.isEmpty()) {
-                        throw new EmptyDescriptionException("deadline");
-                    } else {
-                        tasks.add(new Deadline(description, parseDate(by)));
-                        ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
-                    }
+                    tasks.add(new Deadline(
+                            deadline.description(),
+                            deadline.date()));
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                 } else if (commandType == Parser.CommandType.EVENT) {
-                    String eventDetails = command.substring("event".length()).trim();
-                    int fromMarkerIndex = eventDetails.indexOf("/from");
-                    int toMarkerIndex = fromMarkerIndex < 0
-                            ? -1
-                            : eventDetails.indexOf("/to", fromMarkerIndex + "/from".length());
-                    String description = fromMarkerIndex < 0
-                            ? ""
-                            : eventDetails.substring(0, fromMarkerIndex).trim();
-                    String from = fromMarkerIndex < 0 || toMarkerIndex < 0
-                            ? ""
-                            : eventDetails.substring(fromMarkerIndex + "/from".length(), toMarkerIndex).trim();
-                    String to = toMarkerIndex < 0
-                            ? ""
-                            : eventDetails.substring(toMarkerIndex + "/to".length()).trim();
+                    Parser.EventDetails event =
+                            Parser.parseEvent(command);
 
-                    if (description.isEmpty()) {
-                        throw new EmptyDescriptionException("event");
-                    } else if (from.isEmpty()) {
-                        throw new EmptyFromException();
-                    } else if (to.isEmpty()) {
-                        throw new EmptyToException();
-                    } else {
-                        tasks.add(new Event(description, parseDate(from), parseDate(to)));
-                        ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
-                    }
+                    tasks.add(new Event(
+                            event.description(),
+                            event.from(),
+                            event.to()));
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
                 } else {
                     throw new InvalidCommandException();
                 }
