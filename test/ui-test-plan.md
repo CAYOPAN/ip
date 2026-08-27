@@ -226,14 +226,60 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+### TC-006: Find tasks by keyword
+
+- Aim: Verify searching by keyword lists only tasks with matching descriptions.
+- Command: `python test/run_gradle_ui_test.py`
+- Inputs:
+```text
+todo read book
+deadline return book /by 2019-06-06
+todo buy milk
+find book
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello! I'm Baymax. Your personal task companion.
+What can I do for you?
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [D][ ] return book (by: Jun 06 2019)
+ Now you have 2 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] buy milk
+ Now you have 3 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Here are the matching tasks in your list:
+ 1.[T][ ] read book
+ 2.[D][ ] return book (by: Jun 06 2019)
+____________________________________________________________
+____________________________________________________________
+ Bye. Hope to see you again soon!
+____________________________________________________________
+```
+
 ## Latest test session
 
-<<<<<<< HEAD
-- Recorded: 2026-08-27T14:52:01+08:00
-=======
-- Recorded: 2026-08-27T18:10:13+08:00
->>>>>>> branch-A-CodingStandard
-- Result: PASS (5 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
+- Recorded: 2026-08-27T18:46:01+08:00
+- Result: PASS (6 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text
 === TC-001: Exit immediately ===
@@ -427,6 +473,53 @@ ____________________________________________________________
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][ ] submit report
+____________________________________________________________
+____________________________________________________________
+ Bye. Hope to see you again soon!
+____________________________________________________________
+
+Status: PASS
+
+=== TC-006: Find tasks by keyword ===
+Command: python test/run_gradle_ui_test.py
+Console input:
+todo read book
+deadline return book /by 2019-06-06
+todo buy milk
+find book
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello! I'm Baymax. Your personal task companion.
+What can I do for you?
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] read book
+ Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [D][ ] return book (by: Jun 06 2019)
+ Now you have 2 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Got it. I've added this task:
+   [T][ ] buy milk
+ Now you have 3 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+ Here are the matching tasks in your list:
+ 1.[T][ ] read book
+ 2.[D][ ] return book (by: Jun 06 2019)
 ____________________________________________________________
 ____________________________________________________________
  Bye. Hope to see you again soon!

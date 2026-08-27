@@ -24,6 +24,7 @@ public final class Parser {
         MARK,
         UNMARK,
         DELETE,
+        FIND,
         TODO,
         DEADLINE,
         EVENT
@@ -51,6 +52,8 @@ public final class Parser {
         } else if (command.equals("delete")
                 || command.startsWith("delete ")) {
             return CommandType.DELETE;
+        } else if (command.startsWith("find ")) {
+            return CommandType.FIND;
         } else if (command.startsWith("todo ")) {
             return CommandType.TODO;
         } else if (command.startsWith("deadline ")) {
@@ -109,6 +112,23 @@ public final class Parser {
         }
 
         return description;
+    }
+
+    /**
+     * Extracts the keyword used to search task descriptions.
+     *
+     * @param command the complete find command
+     * @return the keyword to search for
+     */
+    public static String parseFindKeyword(String command) {
+        String keyword =
+                command.substring("find".length()).trim();
+
+        if (keyword.isEmpty()) {
+            throw new EmptyDescriptionException("find");
+        }
+
+        return keyword;
     }
 
     /**

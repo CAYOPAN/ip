@@ -31,6 +31,7 @@ public class ParserTest {
         assertEquals(Parser.CommandType.UNMARK, Parser.getCommandType("unmark 1"));
         assertEquals(Parser.CommandType.DELETE, Parser.getCommandType("delete"));
         assertEquals(Parser.CommandType.DELETE, Parser.getCommandType("delete 1"));
+        assertEquals(Parser.CommandType.FIND, Parser.getCommandType("find book"));
         assertEquals(Parser.CommandType.TODO, Parser.getCommandType("todo read book"));
         assertEquals(Parser.CommandType.DEADLINE, Parser.getCommandType(
                 "deadline submit report /by 2019-12-02"));
@@ -154,6 +155,22 @@ public class ParserTest {
     /**
      * Verifies that a valid deadline command returns its description and date.
      */
+    @Test
+    public void parseFindKeyword_validCommand_returnsKeyword() {
+        assertEquals("book", Parser.parseFindKeyword("find book"));
+    }
+
+    @Test
+    public void parseFindKeyword_extraSpaces_returnsTrimmedKeyword() {
+        assertEquals("book", Parser.parseFindKeyword("find   book   "));
+    }
+
+    @Test
+    public void parseFindKeyword_emptyKeyword_throwsEmptyDescriptionException() {
+        assertThrows(EmptyDescriptionException.class, () ->
+                Parser.parseFindKeyword("find   "));
+    }
+
     @Test
     public void parseDeadline_validCommand_returnsDeadlineDetails() {
         Parser.DeadlineDetails details = Parser.parseDeadline(
