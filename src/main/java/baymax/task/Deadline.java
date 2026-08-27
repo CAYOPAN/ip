@@ -22,6 +22,11 @@ public class Deadline extends Task {
         this.by = by;
     }
 
+    /**
+     * Formats the deadline date for user-facing display.
+     *
+     * @return the due date in {@code MMM dd yyyy} format
+     */
     private String getFormattedBy() {
         return this.by.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
     }
@@ -36,6 +41,11 @@ public class Deadline extends Task {
         return "[D]" + super.toString() + " (by: " + getFormattedBy() + ")";
     }
 
+    /**
+     * Returns the deadline fields in the format used when saving tasks.
+     *
+     * @return the task type, completion status, description, and due date
+     */
     @Override
     public String toStorageString() {
         return "D" + " | " + super.toStorageString() + " | " + this.by;

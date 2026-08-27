@@ -25,6 +25,11 @@ import java.io.IOException;
  * </p>
  */
 public class Baymax {
+    /**
+     * Starts Baymax, reads user commands, updates tasks, and saves them before exit.
+     *
+     * @param args command-line arguments, currently unused
+     */
     public static void main(String[] args) {
         Ui ui = new Ui();
         Storage storage = new Storage("./data/Baymax.txt");
