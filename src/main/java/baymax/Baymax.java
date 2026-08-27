@@ -25,6 +25,10 @@ import java.io.IOException;
  * </p>
  */
 public class Baymax {
+
+    /**
+     * Starts Baymax and processes user commands until the user exits.
+     */
     public static void main(String[] args) {
         Ui ui = new Ui();
         Storage storage = new Storage("./data/Baymax.txt");

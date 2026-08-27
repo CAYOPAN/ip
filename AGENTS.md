@@ -24,11 +24,24 @@ Unless the user says otherwise, assume that you are assisting a student working 
 
 # Project-specific requirements
 
+## Java coding standard:
+
+Use the project-specific `seedu-java-coding-standard` skill before creating,
+reviewing, refactoring, or updating Java code in this repository. All production
+and test Java code must follow the SE-EDU Java coding standard basic +
+intermediate rules summarized in
+`.codex/skills/seedu-java-coding-standard/references/rules.md`.
+
 ## Java version:
 
 Ensure that Java 25 is used when running the application or build tasks. On macOS, use `sdk use java 25.0.3.fx-zulu` to switch to Java 25 if needed.
 
 ## Git
+
+Use the project-specific `seedu-git-standard` skill before proposing, creating,
+or editing commit messages or branch names in this repository. All future commit
+messages and branch names must follow the SE-EDU Git conventions summarized in
+`.codex/skills/seedu-git-standard/references/rules.md`.
 
 Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.

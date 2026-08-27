@@ -8,10 +8,10 @@ package baymax.task;
  */
 public class Task {
     /** The text describing what the task is about. */
-    protected String description;
+    private final String description;
 
     /** Whether this task has been marked as done. */
-    protected boolean isDone;
+    private boolean isDone;
 
     /**
      * Creates a new unfinished task.
@@ -72,5 +72,4 @@ public class Task {
     public String toStorageString() {
         return (isDone ? "1" : "0") + " | " + description;
     }
-
 }

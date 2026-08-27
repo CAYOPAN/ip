@@ -20,10 +20,16 @@ import java.util.Scanner;
 public class Storage {
     private final String filePath;
 
+    /**
+     * Creates storage that reads from and writes to the given file path.
+     */
     public Storage(String filePath) {
         this.filePath = filePath;
     }
 
+    /**
+     * Saves all tasks to the configured data file.
+     */
     public void save(TaskList taskList) throws IOException {
         File file = new File(filePath);
         File parent = file.getParentFile();
@@ -41,6 +47,9 @@ public class Storage {
         }
     }
 
+    /**
+     * Loads valid task records from the configured data file.
+     */
     public TaskList load() {
         ArrayList<Task> taskList = new ArrayList<>();
 
@@ -65,9 +74,11 @@ public class Storage {
                     task = switch (fields[0]) {
                     case "T" -> fields.length == 3 ? new Todo(fields[2]) : null;
                     case "D" -> fields.length == 4
-                            ? new Deadline(fields[2], LocalDate.parse(fields[3])) : null;
+                            ? new Deadline(fields[2], LocalDate.parse(fields[3]))
+                            : null;
                     case "E" -> fields.length == 5
-                            ? new Event(fields[2], LocalDate.parse(fields[3]), LocalDate.parse(fields[4])) : null;
+                            ? new Event(fields[2], LocalDate.parse(fields[3]), LocalDate.parse(fields[4]))
+                            : null;
                     default -> null;
                     };
                 } catch (DateTimeParseException exception) {
