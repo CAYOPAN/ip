@@ -1,9 +1,10 @@
 package baymax.exception;
 
 /**
- * Represents a command that Baymax does not understand.
+ * Represents a command that Baymax does not recognize.
  */
 public class InvalidCommandException extends BaymaxException {
+
     /**
      * Creates an exception for an unsupported command.
      */

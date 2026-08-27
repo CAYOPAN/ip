@@ -10,17 +10,17 @@ import java.time.format.DateTimeFormatter;
 public class Event extends Task {
 
     /** The date when the event starts. */
-    protected LocalDate from;
+    private final LocalDate from;
 
     /** The date when the event ends. */
-    protected LocalDate to;
+    private final LocalDate to;
 
     /**
      * Creates a new unfinished event task.
      *
      * @param description the text describing the event
-    * @param from the date when the event starts
-    * @param to the date when the event ends
+     * @param from the date when the event starts
+     * @param to the date when the event ends
      */
     public Event(String description, LocalDate from, LocalDate to) {
         super(description);

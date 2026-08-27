@@ -84,9 +84,11 @@ public class Storage {
                     task = switch (fields[0]) {
                     case "T" -> fields.length == 3 ? new Todo(fields[2]) : null;
                     case "D" -> fields.length == 4
-                            ? new Deadline(fields[2], LocalDate.parse(fields[3])) : null;
+                            ? new Deadline(fields[2], LocalDate.parse(fields[3]))
+                            : null;
                     case "E" -> fields.length == 5
-                            ? new Event(fields[2], LocalDate.parse(fields[3]), LocalDate.parse(fields[4])) : null;
+                            ? new Event(fields[2], LocalDate.parse(fields[3]), LocalDate.parse(fields[4]))
+                            : null;
                     default -> null;
                     };
                 } catch (DateTimeParseException exception) {

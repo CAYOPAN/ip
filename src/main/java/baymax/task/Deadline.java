@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 public class Deadline extends Task {
 
     /** The date by which the task should be completed. */
-    protected LocalDate by;
+    private final LocalDate by;
 
     /**
      * Creates a new unfinished deadline task.
@@ -32,7 +32,7 @@ public class Deadline extends Task {
     }
 
     /**
-    * Returns the deadline type marker, task details, and due date.
+     * Returns the deadline type marker, task details, and due date.
      *
      * @return the formatted deadline task
      */

@@ -228,7 +228,11 @@ ____________________________________________________________
 
 ## Latest test session
 
+<<<<<<< HEAD
 - Recorded: 2026-08-27T14:52:01+08:00
+=======
+- Recorded: 2026-08-27T18:10:13+08:00
+>>>>>>> branch-A-CodingStandard
 - Result: PASS (5 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text

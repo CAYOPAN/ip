@@ -1,9 +1,10 @@
 package baymax.exception;
 
 /**
- * Represents an error that Baymax can show to the user as a friendly message.
+ * Represents an application-level error that can be shown to the user.
  */
 public class BaymaxException extends RuntimeException {
+
     /**
      * Creates a Baymax exception with the given user-facing message.
      *
