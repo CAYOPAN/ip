@@ -24,6 +24,11 @@ public class Todo extends Task {
         return "[T]" + super.toString();
     }
 
+    /**
+     * Returns the todo fields in the format used when saving tasks.
+     *
+     * @return the task type, completion status, and description
+     */
     @Override
     public String toStorageString() {
         return "T" + " | " + super.toStorageString();

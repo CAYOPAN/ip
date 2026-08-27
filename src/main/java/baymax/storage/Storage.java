@@ -20,10 +20,21 @@ import java.util.Scanner;
 public class Storage {
     private final String filePath;
 
+    /**
+     * Creates a storage helper that reads from and writes to the given file path.
+     *
+     * @param filePath the data file path used to persist tasks
+     */
     public Storage(String filePath) {
         this.filePath = filePath;
     }
 
+    /**
+     * Saves all tasks to the configured data file, creating parent folders if needed.
+     *
+     * @param taskList the tasks to save
+     * @throws IOException if the file cannot be written
+     */
     public void save(TaskList taskList) throws IOException {
         File file = new File(filePath);
         File parent = file.getParentFile();
@@ -41,6 +52,14 @@ public class Storage {
         }
     }
 
+    /**
+     * Loads tasks from the configured data file.
+     *
+     * <p>Malformed records are skipped so that one bad line does not prevent
+     * the rest of the task list from loading.</p>
+     *
+     * @return the restored task list, or an empty list if the file is unavailable
+     */
     public TaskList load() {
         ArrayList<Task> taskList = new ArrayList<>();
 

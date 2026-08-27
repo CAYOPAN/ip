@@ -21,9 +21,15 @@ import org.junit.jupiter.api.io.TempDir;
  */
 public class StorageTest {
 
+    /**
+     * Temporary folder used so persistence tests do not touch the real data file.
+     */
     @TempDir
     public Path temporaryFolder;
 
+    /**
+     * Verifies that saving tasks creates missing folders and writes storage records.
+     */
     @Test
     public void save_tasksWithNestedFilePath_createsParentDirectoryAndWritesTasks()
             throws IOException {
@@ -53,6 +59,9 @@ public class StorageTest {
                 Files.readString(filePath));
     }
 
+    /**
+     * Verifies that loading from a missing data file returns an empty task list.
+     */
     @Test
     public void load_missingFile_returnsEmptyTaskList() {
         Path filePath = temporaryFolder.resolve("missing").resolve("Baymax.txt");
@@ -63,6 +72,9 @@ public class StorageTest {
         assertEquals(0, tasks.size());
     }
 
+    /**
+     * Verifies that valid saved records are restored as the correct task types.
+     */
     @Test
     public void load_validTaskRecords_returnsRestoredTasks() throws IOException {
         Path filePath = temporaryFolder.resolve("Baymax.txt");
@@ -82,6 +94,9 @@ public class StorageTest {
                 tasks.get(2).toString());
     }
 
+    /**
+     * Verifies that malformed records are skipped while valid records still load.
+     */
     @Test
     public void load_malformedTaskRecords_skipsInvalidRecords() throws IOException {
         Path filePath = temporaryFolder.resolve("Baymax.txt");

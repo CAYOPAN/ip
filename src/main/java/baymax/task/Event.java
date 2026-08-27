@@ -28,10 +28,20 @@ public class Event extends Task {
         this.to = to;
     }
 
+    /**
+     * Formats the event start date for user-facing display.
+     *
+     * @return the start date in {@code MMM dd yyyy} format
+     */
     private String getFormattedFrom() {
         return this.from.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
     }
 
+    /**
+     * Formats the event end date for user-facing display.
+     *
+     * @return the end date in {@code MMM dd yyyy} format
+     */
     private String getFormattedTo() {
         return this.to.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
     }
@@ -48,6 +58,11 @@ public class Event extends Task {
         return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
     }
 
+    /**
+     * Returns the event fields in the format used when saving tasks.
+     *
+     * @return the task type, completion status, description, start date, and end date
+     */
     @Override
     public String toStorageString() {
         return "E" + " | " + super.toStorageString() + " | " + from + " | " + to;
