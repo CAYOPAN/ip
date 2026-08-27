@@ -28,6 +28,7 @@ public class ParserTest {
         assertEquals(Parser.CommandType.UNMARK, Parser.getCommandType("unmark 1"));
         assertEquals(Parser.CommandType.DELETE, Parser.getCommandType("delete"));
         assertEquals(Parser.CommandType.DELETE, Parser.getCommandType("delete 1"));
+        assertEquals(Parser.CommandType.FIND, Parser.getCommandType("find book"));
         assertEquals(Parser.CommandType.TODO, Parser.getCommandType("todo read book"));
         assertEquals(Parser.CommandType.DEADLINE, Parser.getCommandType(
                 "deadline submit report /by 2019-12-02"));
@@ -110,6 +111,22 @@ public class ParserTest {
     public void parseTodoDescription_emptyDescription_throwsEmptyDescriptionException() {
         assertThrows(EmptyDescriptionException.class, () ->
                 Parser.parseTodoDescription("todo"));
+    }
+
+    @Test
+    public void parseFindKeyword_validCommand_returnsKeyword() {
+        assertEquals("book", Parser.parseFindKeyword("find book"));
+    }
+
+    @Test
+    public void parseFindKeyword_extraSpaces_returnsTrimmedKeyword() {
+        assertEquals("book", Parser.parseFindKeyword("find   book   "));
+    }
+
+    @Test
+    public void parseFindKeyword_emptyKeyword_throwsEmptyDescriptionException() {
+        assertThrows(EmptyDescriptionException.class, () ->
+                Parser.parseFindKeyword("find   "));
     }
 
     @Test

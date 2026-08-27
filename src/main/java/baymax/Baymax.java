@@ -19,7 +19,7 @@ import java.io.IOException;
  * <p>
  * Each line entered by the user is stored as a task, unless it is one of
  * the special commands {@code list}, {@code todo}, {@code deadline},
- * {@code event}, {@code mark}, {@code unmark}, or
+ * {@code event}, {@code find}, {@code mark}, {@code unmark}, or
  * {@code bye}. Tasks are kept only while the program is running, as required
  * for this level.
  * </p>
@@ -79,6 +79,9 @@ public class Baymax {
                     } else {
                         ui.showTaskNotFound();
                     }
+                } else if (commandType == Parser.CommandType.FIND) {
+                    String keyword = Parser.parseFindKeyword(command);
+                    ui.showMatchingTasks(tasks.find(keyword));
                 } else if (commandType == Parser.CommandType.TODO) {
                     String description =
                             Parser.parseTodoDescription(command);
