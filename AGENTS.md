@@ -36,6 +36,12 @@ Do not commit or push unless explicitly asked.
 
 ## Code-update UI testing
 
+After every code change, review and update the JUnit test suite so it continues
+to cover the top ~50% highest-value methods. Prioritize complex, core, or
+critical business logic over trivial getters, setters, or thin wrappers. Add or
+adjust tests when changed behavior affects those high-value methods, and avoid
+adding low-value tests merely to increase the test count.
+
 After every code update, review `test/ui-test-plan.md` and update it when the change introduces or alters a relevant console UI behavior, command, input, or expected output. Keep expected outputs aligned with the intended behavior; do not edit them merely to hide a regression.
 
 After that review, invoke the project-specific `test-ui` skill to run the recorded UI test cases. Use the skill even when the test plan does not need changes, and report its console-session transcript and any failure. If the plan has no applicable test cases, record that limitation in the response rather than silently skipping the skill invocation.
