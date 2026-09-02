@@ -1,14 +1,14 @@
 package baymax.parser;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 import baymax.exception.BaymaxException;
 import baymax.exception.EmptyByException;
 import baymax.exception.EmptyDescriptionException;
 import baymax.exception.EmptyFromException;
 import baymax.exception.EmptyToException;
 import baymax.exception.InvalidCommandException;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 
 /**
  * Identifies the type of a user command.

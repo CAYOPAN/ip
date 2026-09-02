@@ -3,11 +3,6 @@ package baymax.storage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import baymax.task.Deadline;
-import baymax.task.Event;
-import baymax.task.TaskList;
-import baymax.task.Todo;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +10,11 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+import baymax.task.Deadline;
+import baymax.task.Event;
+import baymax.task.TaskList;
+import baymax.task.Todo;
 
 /**
  * Tests task persistence without using the application's real data file.

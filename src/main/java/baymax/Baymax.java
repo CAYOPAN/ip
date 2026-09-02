@@ -1,5 +1,7 @@
 package baymax;
 
+import java.io.IOException;
+
 import baymax.exception.BaymaxException;
 import baymax.exception.InvalidCommandException;
 import baymax.parser.Parser;
@@ -10,8 +12,6 @@ import baymax.task.Task;
 import baymax.task.TaskList;
 import baymax.task.Todo;
 import baymax.ui.Ui;
-
-import java.io.IOException;
 
 /**
  * Runs Baymax's text user interface.

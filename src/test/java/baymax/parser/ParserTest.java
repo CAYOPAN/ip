@@ -3,16 +3,16 @@ package baymax.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.LocalDate;
+
+import org.junit.jupiter.api.Test;
+
 import baymax.exception.BaymaxException;
 import baymax.exception.EmptyByException;
 import baymax.exception.EmptyDescriptionException;
 import baymax.exception.EmptyFromException;
 import baymax.exception.EmptyToException;
 import baymax.exception.InvalidCommandException;
-
-import java.time.LocalDate;
-
-import org.junit.jupiter.api.Test;
 
 /**
  * Tests command parsing behavior that can be checked without running the
