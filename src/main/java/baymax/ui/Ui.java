@@ -1,17 +1,17 @@
 package baymax.ui;
 
+import java.util.Scanner;
+
 import baymax.task.Task;
 import baymax.task.TaskList;
-
-import java.util.Scanner;
 
 /**
  * Handles console input for Baymax.
  */
 public class Ui {
-    private final Scanner scanner = new Scanner(System.in);
     private static final String SEPARATOR =
         "____________________________________________________________";
+    private final Scanner scanner = new Scanner(System.in);
 
     /**
      * Checks whether another command is available.

@@ -1,11 +1,5 @@
 package baymax.storage;
 
-import baymax.task.Deadline;
-import baymax.task.Event;
-import baymax.task.Task;
-import baymax.task.TaskList;
-import baymax.task.Todo;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,6 +7,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import baymax.task.Deadline;
+import baymax.task.Event;
+import baymax.task.Task;
+import baymax.task.TaskList;
+import baymax.task.Todo;
 
 /**
  * Loads tasks from and saves tasks to Baymax's data file.
@@ -82,14 +82,14 @@ public class Storage {
                 Task task;
                 try {
                     task = switch (fields[0]) {
-                    case "T" -> fields.length == 3 ? new Todo(fields[2]) : null;
-                    case "D" -> fields.length == 4
+                        case "T" -> fields.length == 3 ? new Todo(fields[2]) : null;
+                        case "D" -> fields.length == 4
                             ? new Deadline(fields[2], LocalDate.parse(fields[3]))
                             : null;
-                    case "E" -> fields.length == 5
+                        case "E" -> fields.length == 5
                             ? new Event(fields[2], LocalDate.parse(fields[3]), LocalDate.parse(fields[4]))
                             : null;
-                    default -> null;
+                        default -> null;
                     };
                 } catch (DateTimeParseException exception) {
                     continue;
