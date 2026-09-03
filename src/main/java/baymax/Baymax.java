@@ -3,7 +3,6 @@ package baymax;
 import java.io.IOException;
 
 import baymax.exception.BaymaxException;
-import baymax.exception.InvalidCommandException;
 import baymax.parser.Parser;
 import baymax.storage.Storage;
 import baymax.task.Deadline;
@@ -14,110 +13,197 @@ import baymax.task.Todo;
 import baymax.ui.Ui;
 
 /**
- * Runs Baymax's text user interface.
+ * Coordinates Baymax's command processing and task state.
  *
- * <p>
- * Each line entered by the user is stored as a task, unless it is one of
- * the special commands {@code list}, {@code todo}, {@code deadline},
- * {@code event}, {@code find}, {@code mark}, {@code unmark}, or
- * {@code bye}. Tasks are kept only while the program is running, as required
- * for this level.
- * </p>
+ * <p>The command-processing method is deliberately independent of a particular
+ * user interface. The console UI and the JavaFX UI can therefore share exactly
+ * the same parsing and task-management behavior.</p>
  */
 public class Baymax {
+    private final Storage storage;
+    private final TaskList tasks;
+
     /**
-     * Starts Baymax, reads user commands, updates tasks, and saves them before exit.
+     * Describes the text response to a command and whether the interface should exit.
+     *
+     * @param message the response text to display
+     * @param shouldExit whether the command requested interface termination
+     */
+    public record CommandResponse(String message, boolean shouldExit) {
+    }
+
+    /**
+     * Creates Baymax using the application's default data file.
+     */
+    public Baymax() {
+        this("./data/Baymax.txt");
+    }
+
+    /**
+     * Creates Baymax using a specified data file.
+     *
+     * @param filePath the file used to load and save tasks
+     */
+    public Baymax(String filePath) {
+        storage = new Storage(filePath);
+        tasks = storage.load();
+    }
+
+    /**
+     * Processes one command and returns the response for an interface to display.
+     *
+     * @param command the user's command
+     * @return the command response and exit status
+     */
+    public CommandResponse processCommand(String command) {
+        try {
+            Parser.CommandType commandType = Parser.getCommandType(command);
+
+            return switch (commandType) {
+                case BYE -> new CommandResponse(
+                        " Bye. Hope to see you again soon!", true);
+                case LIST -> new CommandResponse(formatTaskList(
+                        " Here are the tasks in your list:", tasks), false);
+                case MARK -> processMark(command, commandType);
+                case UNMARK -> processUnmark(command, commandType);
+                case DELETE -> processDelete(command, commandType);
+                case FIND -> processFind(command);
+                case TODO -> processTodo(command);
+                case DEADLINE -> processDeadline(command);
+                case EVENT -> processEvent(command);
+            };
+        } catch (BaymaxException exception) {
+            return new CommandResponse(exception.getMessage(), false);
+        }
+    }
+
+    /**
+     * Saves the current task list.
+     *
+     * @throws IOException if the task list cannot be written
+     */
+    public void saveTasks() throws IOException {
+        storage.save(tasks);
+    }
+
+    private CommandResponse processMark(
+            String command, Parser.CommandType commandType) {
+        int taskIndex = Parser.parseTaskIndex(command, commandType);
+        if (isValidTaskIndex(taskIndex)) {
+            tasks.get(taskIndex).markAsDone();
+            return new CommandResponse(formatTaskChange(
+                    " Nice! I've marked this task as done:", tasks.get(taskIndex)), false);
+        }
+        return new CommandResponse(" Sorry, that task does not exist.", false);
+    }
+
+    private CommandResponse processUnmark(
+            String command, Parser.CommandType commandType) {
+        int taskIndex = Parser.parseTaskIndex(command, commandType);
+        if (isValidTaskIndex(taskIndex)) {
+            tasks.get(taskIndex).markAsUndone();
+            return new CommandResponse(formatTaskChange(
+                    " OK, I've marked this task as not done yet:", tasks.get(taskIndex)), false);
+        }
+        return new CommandResponse(" Sorry, that task does not exist.", false);
+    }
+
+    private CommandResponse processDelete(
+            String command, Parser.CommandType commandType) {
+        int taskIndex = Parser.parseTaskIndex(command, commandType);
+        if (isValidTaskIndex(taskIndex)) {
+            Task removedTask = tasks.remove(taskIndex);
+            return new CommandResponse(formatDeletedTask(removedTask), false);
+        }
+        return new CommandResponse(" Sorry, that task does not exist.", false);
+    }
+
+    private CommandResponse processFind(String command) {
+        String keyword = Parser.parseFindKeyword(command);
+        return new CommandResponse(formatTaskList(
+                " Here are the matching tasks in your list:", tasks.find(keyword)), false);
+    }
+
+    private CommandResponse processTodo(String command) {
+        String description = Parser.parseTodoDescription(command);
+        tasks.add(new Todo(description));
+        return new CommandResponse(formatAddedTask(tasks.get(tasks.size() - 1)), false);
+    }
+
+    private CommandResponse processDeadline(String command) {
+        Parser.DeadlineDetails deadline = Parser.parseDeadline(command);
+        tasks.add(new Deadline(deadline.description(), deadline.date()));
+        return new CommandResponse(formatAddedTask(tasks.get(tasks.size() - 1)), false);
+    }
+
+    private CommandResponse processEvent(String command) {
+        Parser.EventDetails event = Parser.parseEvent(command);
+        tasks.add(new Event(event.description(), event.from(), event.to()));
+        return new CommandResponse(formatAddedTask(tasks.get(tasks.size() - 1)), false);
+    }
+
+    private boolean isValidTaskIndex(int taskIndex) {
+        return taskIndex >= 0 && taskIndex < tasks.size();
+    }
+
+    private String formatTaskList(String heading, TaskList taskList) {
+        StringBuilder response = new StringBuilder(heading);
+        for (int i = 0; i < taskList.size(); i++) {
+            response.append(System.lineSeparator())
+                    .append(" ")
+                    .append(i + 1)
+                    .append(".")
+                    .append(taskList.get(i));
+        }
+        return response.toString();
+    }
+
+    private String formatTaskChange(String heading, Task task) {
+        return heading + System.lineSeparator() + "   " + task;
+    }
+
+    private String formatAddedTask(Task task) {
+        return " Got it. I've added this task:" + System.lineSeparator()
+                + "   " + task + System.lineSeparator()
+                + " Now you have " + tasks.size() + " tasks in the list.";
+    }
+
+    private String formatDeletedTask(Task task) {
+        return " Noted. I've removed this task:" + System.lineSeparator()
+                + "   " + task + System.lineSeparator()
+                + " Now you have " + tasks.size() + " tasks in the list.";
+    }
+
+    /**
+     * Starts Baymax's text user interface.
      *
      * @param args command-line arguments, currently unused
      */
     public static void main(String[] args) {
+        Baymax baymax = new Baymax();
         Ui ui = new Ui();
-        Storage storage = new Storage("./data/Baymax.txt");
-        TaskList tasks = storage.load();
 
         ui.showWelcome();
 
         while (ui.hasNextCommand()) {
-            try {
-                String command = ui.readCommand();
-                Parser.CommandType commandType =
-                        Parser.getCommandType(command);
+            String command = ui.readCommand();
+            ui.showSeparator();
 
-                ui.showSeparator();
-                if (commandType == Parser.CommandType.BYE) {
-                    ui.showGoodbye();
-                    try {
-                        storage.save(tasks);
-                    } catch (IOException io) {
-                        ui.showSaveError();
-                    }
-                    ui.close();
-                    break;
+            CommandResponse response = baymax.processCommand(command);
+            ui.showResponse(response.message());
+
+            if (response.shouldExit()) {
+                try {
+                    baymax.saveTasks();
+                } catch (IOException exception) {
+                    ui.showSaveError();
                 }
-
-                if (commandType == Parser.CommandType.LIST) {
-                    ui.showTaskList(tasks);
-                } else if (commandType == Parser.CommandType.MARK) {
-                    int taskIndex =
-                            Parser.parseTaskIndex(command, commandType);
-                    if (taskIndex >= 0 && taskIndex < tasks.size()) {
-                        tasks.get(taskIndex).markAsDone();
-                        ui.showTaskMarked(tasks.get(taskIndex));
-                    } else {
-                        ui.showTaskNotFound();
-                    }
-                } else if (commandType == Parser.CommandType.UNMARK) {
-                    int taskIndex =
-                            Parser.parseTaskIndex(command, commandType);
-                    if (taskIndex >= 0 && taskIndex < tasks.size()) {
-                        tasks.get(taskIndex).markAsUndone();
-                        ui.showTaskUnmarked(tasks.get(taskIndex));
-                    } else {
-                        ui.showTaskNotFound();
-                    }
-                } else if (commandType == Parser.CommandType.DELETE) {
-                    int taskIndex =
-                            Parser.parseTaskIndex(command, commandType);
-                    if (taskIndex >= 0 && taskIndex < tasks.size()) {
-                        Task removedTask = tasks.remove(taskIndex);
-                        ui.showTaskDeleted(removedTask, tasks.size());
-                    } else {
-                        ui.showTaskNotFound();
-                    }
-                } else if (commandType == Parser.CommandType.FIND) {
-                    String keyword = Parser.parseFindKeyword(command);
-                    ui.showMatchingTasks(tasks.find(keyword));
-                } else if (commandType == Parser.CommandType.TODO) {
-                    String description =
-                            Parser.parseTodoDescription(command);
-                    tasks.add(new Todo(description));
-                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
-                } else if (commandType == Parser.CommandType.DEADLINE) {
-                    Parser.DeadlineDetails deadline =
-                            Parser.parseDeadline(command);
-
-                    tasks.add(new Deadline(
-                            deadline.description(),
-                            deadline.date()));
-                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
-                } else if (commandType == Parser.CommandType.EVENT) {
-                    Parser.EventDetails event =
-                            Parser.parseEvent(command);
-
-                    tasks.add(new Event(
-                            event.description(),
-                            event.from(),
-                            event.to()));
-                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
-                } else {
-                    throw new InvalidCommandException();
-                }
-            } catch (BaymaxException e) {
-                ui.showError(e.getMessage());
-            } finally {
+                ui.close();
                 ui.showSeparator();
+                break;
             }
 
+            ui.showSeparator();
         }
     }
 }
