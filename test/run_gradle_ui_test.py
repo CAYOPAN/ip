@@ -1,4 +1,4 @@
-"""Run Baymax from Gradle's installed application in an isolated directory."""
+"""Run Baymax's console interface from the Shadow JAR in isolation."""
 
 from __future__ import annotations
 
@@ -10,27 +10,26 @@ import tempfile
 
 
 def main() -> int:
-    """Build the Gradle application distribution, then run it with clean storage."""
+    """Build the Shadow JAR, then run the console interface with clean storage."""
 
     repo_root = Path(__file__).resolve().parents[1]
     wrapper_name = "gradlew.bat" if os.name == "nt" else "gradlew"
-    script_name = "baymax.bat" if os.name == "nt" else "baymax"
 
     gradle_wrapper = repo_root / wrapper_name
-    install_result = subprocess.run(
-        [str(gradle_wrapper), "--quiet", "installShadowDist"],
+    build_result = subprocess.run(
+        [str(gradle_wrapper), "--quiet", "shadowJar"],
         cwd=repo_root,
         stdin=subprocess.DEVNULL,
         check=False,
     )
-    if install_result.returncode != 0:
-        return install_result.returncode
+    if build_result.returncode != 0:
+        return build_result.returncode
 
-    app_script = repo_root / "build" / "install" / "baymax-shadow" / "bin" / script_name
+    shadow_jar = repo_root / "build" / "libs" / "baymax.jar"
     console_input = sys.stdin.read()
     with tempfile.TemporaryDirectory(prefix="baymax-ui-test-") as work_dir:
         app_result = subprocess.run(
-            [str(app_script)],
+            ["java", "-cp", str(shadow_jar), "baymax.Baymax"],
             cwd=work_dir,
             input=console_input,
             text=True,
