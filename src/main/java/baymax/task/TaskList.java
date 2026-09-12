@@ -1,6 +1,8 @@
 package baymax.task;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -71,21 +73,24 @@ public class TaskList {
     }
 
     /**
-     * Finds tasks whose descriptions contain the given keyword.
+     * Finds tasks whose descriptions contain every keyword in the search query.
      *
-     * <p>The search is case-insensitive so that users can find tasks without
-     * remembering the exact capitalization used when the task was added.</p>
+     * <p>Each keyword is matched as a case-insensitive substring, allowing users
+     * to find tasks with partial words without remembering their capitalization.</p>
      *
-     * @param keyword the keyword to search for
+     * @param query the space-separated keywords to search for
      * @return a task list containing matching tasks in their original order
      */
-    public TaskList find(String keyword) {
-        assert keyword != null && !keyword.isBlank()
-                : "Task search should receive a validated keyword.";
+    public TaskList find(String query) {
+        assert query != null && !query.isBlank()
+                : "Task search should receive a validated query.";
 
-        String lowercaseKeyword = keyword.toLowerCase();
+        String[] keywords = query.toLowerCase(Locale.ROOT).split("\\s+");
         ArrayList<Task> matchingTasks = tasks.stream()
-                .filter(task -> task.getDescription().toLowerCase().contains(lowercaseKeyword))
+                .filter(task -> {
+                    String description = task.getDescription().toLowerCase(Locale.ROOT);
+                    return Arrays.stream(keywords).allMatch(description::contains);
+                })
                 .collect(Collectors.toCollection(ArrayList::new));
 
         return new TaskList(matchingTasks);

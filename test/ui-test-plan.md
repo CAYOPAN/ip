@@ -227,16 +227,16 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
-### TC-006: Find tasks by keyword
+### TC-006: Find tasks by partial keywords
 
-- Aim: Verify searching by keyword lists only tasks with matching descriptions.
+- Aim: Verify that every partial keyword must occur in a task description for the task to be listed.
 - Command: `python test/run_gradle_ui_test.py`
 - Inputs:
 ```text
 todo read book
 deadline return book /by 2019-06-06
 todo buy milk
-find book
+find ret boo
 bye
 ```
 - Expected output:
@@ -269,8 +269,7 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Here are the matching tasks in your list:
- 1.[T][ ] read book
- 2.[D][ ] return book (by: Jun 06 2019)
+ 1.[D][ ] return book (by: Jun 06 2019)
 ____________________________________________________________
 ____________________________________________________________
  Bye. Hope to see you again soon!
@@ -279,11 +278,7 @@ ____________________________________________________________
 
 ## Latest test session
 
-<<<<<<< HEAD
-- Recorded: 2026-09-12T15:04:48+08:00
-=======
-- Recorded: 2026-09-12T16:07:22+08:00
->>>>>>> master
+- Recorded: 2026-09-12T21:32:30+08:00
 - Result: PASS (6 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text
@@ -485,13 +480,13 @@ ____________________________________________________________
 
 Status: PASS
 
-=== TC-006: Find tasks by keyword ===
+=== TC-006: Find tasks by partial keywords ===
 Command: python test/run_gradle_ui_test.py
 Console input:
 todo read book
 deadline return book /by 2019-06-06
 todo buy milk
-find book
+find ret boo
 bye
 
 Console output:
@@ -523,8 +518,7 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Here are the matching tasks in your list:
- 1.[T][ ] read book
- 2.[D][ ] return book (by: Jun 06 2019)
+ 1.[D][ ] return book (by: Jun 06 2019)
 ____________________________________________________________
 ____________________________________________________________
  Bye. Hope to see you again soon!
