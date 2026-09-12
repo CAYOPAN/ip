@@ -1,6 +1,7 @@
 package baymax.task;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Stores and manages Baymax's tasks.
@@ -82,15 +83,11 @@ public class TaskList {
         assert keyword != null && !keyword.isBlank()
                 : "Task search should receive a validated keyword.";
 
-        TaskList matchingTasks = new TaskList();
         String lowercaseKeyword = keyword.toLowerCase();
+        ArrayList<Task> matchingTasks = tasks.stream()
+                .filter(task -> task.getDescription().toLowerCase().contains(lowercaseKeyword))
+                .collect(Collectors.toCollection(ArrayList::new));
 
-        for (Task task : tasks) {
-            if (task.getDescription().toLowerCase().contains(lowercaseKeyword)) {
-                matchingTasks.add(task);
-            }
-        }
-
-        return matchingTasks;
+        return new TaskList(matchingTasks);
     }
 }
