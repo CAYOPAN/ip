@@ -10,24 +10,24 @@ import java.time.format.DateTimeFormatter;
 public class Event extends Task {
 
     /** The date when the event starts. */
-    private final LocalDate from;
+    private final LocalDate startDate;
 
     /** The date when the event ends. */
-    private final LocalDate to;
+    private final LocalDate endDate;
 
     /**
      * Creates a new unfinished event task.
      *
      * @param description the text describing the event
-     * @param from the date when the event starts
-     * @param to the date when the event ends
+     * @param startDate the date when the event starts
+     * @param endDate the date when the event ends
      */
-    public Event(String description, LocalDate from, LocalDate to) {
+    public Event(String description, LocalDate startDate, LocalDate endDate) {
         super(description);
-        assert from != null : "Event start dates should be parsed before construction.";
-        assert to != null : "Event end dates should be parsed before construction.";
-        this.from = from;
-        this.to = to;
+        assert startDate != null : "Event start dates should be parsed before construction.";
+        assert endDate != null : "Event end dates should be parsed before construction.";
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     /**
@@ -35,8 +35,8 @@ public class Event extends Task {
      *
      * @return the start date in {@code MMM dd yyyy} format
      */
-    private String getFormattedFrom() {
-        return this.from.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
+    private String formatStartDate() {
+        return startDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
     }
 
     /**
@@ -44,8 +44,8 @@ public class Event extends Task {
      *
      * @return the end date in {@code MMM dd yyyy} format
      */
-    private String getFormattedTo() {
-        return this.to.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
+    private String formatEndDate() {
+        return endDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
     }
 
     /**
@@ -55,9 +55,11 @@ public class Event extends Task {
      */
     @Override
     public String toString() {
-        String from = this.getFormattedFrom();
-        String to = this.getFormattedTo();
-        return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
+        String formattedStartDate = formatStartDate();
+        String formattedEndDate = formatEndDate();
+        return "[E]" + super.toString()
+                + " (from: " + formattedStartDate
+                + " to: " + formattedEndDate + ")";
     }
 
     /**
@@ -67,6 +69,7 @@ public class Event extends Task {
      */
     @Override
     public String toStorageString() {
-        return "E" + " | " + super.toStorageString() + " | " + from + " | " + to;
+        return "E" + " | " + super.toStorageString()
+                + " | " + startDate + " | " + endDate;
     }
 }
