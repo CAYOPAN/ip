@@ -177,7 +177,7 @@ public class ParserTest {
                 "deadline submit report /by 2019-12-02");
 
         assertEquals("submit report", details.description());
-        assertEquals(LocalDate.of(2019, 12, 2), details.date());
+        assertEquals(LocalDate.of(2019, 12, 2), details.dueDate());
     }
 
     /**
@@ -189,7 +189,7 @@ public class ParserTest {
                 "deadline   submit report   /by   2019-12-02   ");
 
         assertEquals("submit report", details.description());
-        assertEquals(LocalDate.of(2019, 12, 2), details.date());
+        assertEquals(LocalDate.of(2019, 12, 2), details.dueDate());
     }
 
     /**
@@ -240,8 +240,8 @@ public class ParserTest {
                 "event team meeting /from 2019-12-02 /to 2019-12-04");
 
         assertEquals("team meeting", details.description());
-        assertEquals(LocalDate.of(2019, 12, 2), details.from());
-        assertEquals(LocalDate.of(2019, 12, 4), details.to());
+        assertEquals(LocalDate.of(2019, 12, 2), details.startDate());
+        assertEquals(LocalDate.of(2019, 12, 4), details.endDate());
     }
 
     /**
@@ -253,8 +253,8 @@ public class ParserTest {
                 "event   team meeting   /from   2019-12-02   /to   2019-12-04   ");
 
         assertEquals("team meeting", details.description());
-        assertEquals(LocalDate.of(2019, 12, 2), details.from());
-        assertEquals(LocalDate.of(2019, 12, 4), details.to());
+        assertEquals(LocalDate.of(2019, 12, 2), details.startDate());
+        assertEquals(LocalDate.of(2019, 12, 4), details.endDate());
     }
 
     /**

@@ -132,13 +132,14 @@ public class Baymax {
 
     private CommandResponse processDeadline(String command) {
         Parser.DeadlineDetails deadline = Parser.parseDeadline(command);
-        tasks.add(new Deadline(deadline.description(), deadline.date()));
+        tasks.add(new Deadline(deadline.description(), deadline.dueDate()));
         return new CommandResponse(formatAddedTask(tasks.get(tasks.size() - 1)), false);
     }
 
     private CommandResponse processEvent(String command) {
         Parser.EventDetails event = Parser.parseEvent(command);
-        tasks.add(new Event(event.description(), event.from(), event.to()));
+        tasks.add(new Event(
+                event.description(), event.startDate(), event.endDate()));
         return new CommandResponse(formatAddedTask(tasks.get(tasks.size() - 1)), false);
     }
 

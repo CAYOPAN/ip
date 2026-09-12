@@ -135,23 +135,23 @@ public final class Parser {
      * Parsed deadline details.
      *
      * @param description the deadline description
-     * @param date the deadline date
+     * @param dueDate the deadline date
      */
     public record DeadlineDetails(
-            String description, LocalDate date) {
+            String description, LocalDate dueDate) {
     }
 
     /**
      * Parsed event details.
      *
      * @param description the event description
-     * @param from the event start date
-     * @param to the event end date
+     * @param startDate the event start date
+     * @param endDate the event end date
      */
     public record EventDetails(
             String description,
-            LocalDate from,
-            LocalDate to) {
+            LocalDate startDate,
+            LocalDate endDate) {
     }
 
     /**
@@ -170,12 +170,12 @@ public final class Parser {
                 ? ""
                 : deadlineDetails.substring(0, byMarkerIndex).trim();
 
-        String by = byMarkerIndex < 0
+        String dueDateText = byMarkerIndex < 0
                 ? ""
                 : deadlineDetails.substring(
                 byMarkerIndex + "/by".length()).trim();
 
-        if (byMarkerIndex < 0 || by.isEmpty()) {
+        if (byMarkerIndex < 0 || dueDateText.isEmpty()) {
             throw new EmptyByException();
         }
 
@@ -183,7 +183,7 @@ public final class Parser {
             throw new EmptyDescriptionException("deadline");
         }
 
-        return new DeadlineDetails(description, parseDate(by));
+        return new DeadlineDetails(description, parseDate(dueDateText));
     }
 
     /**
@@ -208,13 +208,13 @@ public final class Parser {
                 ? ""
                 : eventDetails.substring(0, fromMarkerIndex).trim();
 
-        String from = fromMarkerIndex < 0 || toMarkerIndex < 0
+        String startDateText = fromMarkerIndex < 0 || toMarkerIndex < 0
                 ? ""
                 : eventDetails.substring(
                 fromMarkerIndex + "/from".length(),
                 toMarkerIndex).trim();
 
-        String to = toMarkerIndex < 0
+        String endDateText = toMarkerIndex < 0
                 ? ""
                 : eventDetails.substring(
                 toMarkerIndex + "/to".length()).trim();
@@ -223,18 +223,18 @@ public final class Parser {
             throw new EmptyDescriptionException("event");
         }
 
-        if (from.isEmpty()) {
+        if (startDateText.isEmpty()) {
             throw new EmptyFromException();
         }
 
-        if (to.isEmpty()) {
+        if (endDateText.isEmpty()) {
             throw new EmptyToException();
         }
 
         return new EventDetails(
                 description,
-                parseDate(from),
-                parseDate(to));
+                parseDate(startDateText),
+                parseDate(endDateText));
     }
 
     /**
