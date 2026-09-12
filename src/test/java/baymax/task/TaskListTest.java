@@ -39,4 +39,37 @@ public class TaskListTest {
         assertEquals(1, matchingTasks.size());
         assertEquals("[T][ ] Read Book", matchingTasks.get(0).toString());
     }
+
+    @Test
+    public void find_partialKeyword_returnsMatchingTasks() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+
+        TaskList matchingTasks = tasks.find("boo");
+
+        assertEquals(1, matchingTasks.size());
+        assertEquals("[T][ ] read book", matchingTasks.get(0).toString());
+    }
+
+    @Test
+    public void find_multiplePartialKeywords_returnsTasksContainingAllKeywords() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+        tasks.add(new Todo("return book"));
+
+        TaskList matchingTasks = tasks.find("ret boo");
+
+        assertEquals(1, matchingTasks.size());
+        assertEquals("[T][ ] return book", matchingTasks.get(0).toString());
+    }
+
+    @Test
+    public void find_nonMatchingPartialKeyword_returnsEmptyTaskList() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+
+        TaskList matchingTasks = tasks.find("movie");
+
+        assertEquals(0, matchingTasks.size());
+    }
 }
