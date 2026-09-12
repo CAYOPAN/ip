@@ -78,10 +78,16 @@ public final class Parser {
         String taskNumberText;
 
         if (commandType == CommandType.MARK) {
+            assert command.startsWith("mark ")
+                    : "Mark index parsing should receive mark command text.";
             taskNumberText = command.substring("mark ".length()).trim();
         } else if (commandType == CommandType.UNMARK) {
+            assert command.startsWith("unmark ")
+                    : "Unmark index parsing should receive unmark command text.";
             taskNumberText = command.substring("unmark ".length()).trim();
         } else if (commandType == CommandType.DELETE) {
+            assert command.equals("delete") || command.startsWith("delete ")
+                    : "Delete index parsing should receive delete command text.";
             taskNumberText = command.equals("delete")
                     ? ""
                     : command.substring("delete ".length()).trim();
@@ -104,6 +110,8 @@ public final class Parser {
      * @return the todo description
      */
     public static String parseTodoDescription(String command) {
+        assert command.startsWith("todo")
+                : "Todo description parsing should receive todo command text.";
         String description =
                 command.substring("todo".length()).trim();
 
@@ -121,6 +129,8 @@ public final class Parser {
      * @return the keyword to search for
      */
     public static String parseFindKeyword(String command) {
+        assert command.startsWith("find")
+                : "Find keyword parsing should receive find command text.";
         String keyword =
                 command.substring("find".length()).trim();
 
@@ -161,6 +171,8 @@ public final class Parser {
      * @return parsed deadline details
      */
     public static DeadlineDetails parseDeadline(String command) {
+        assert command.startsWith("deadline")
+                : "Deadline parsing should receive deadline command text.";
         String deadlineDetails =
                 command.substring("deadline".length()).trim();
 
@@ -193,6 +205,8 @@ public final class Parser {
      * @return parsed event details
      */
     public static EventDetails parseEvent(String command) {
+        assert command.startsWith("event")
+                : "Event parsing should receive event command text.";
         String eventDetails =
                 command.substring("event".length()).trim();
 
@@ -244,6 +258,8 @@ public final class Parser {
      * @return the parsed date
      */
     private static LocalDate parseDate(String dateText) {
+        assert dateText != null && !dateText.isBlank()
+                : "Date parsing should receive non-empty date text.";
         try {
             return LocalDate.parse(dateText);
         } catch (DateTimeParseException exception) {

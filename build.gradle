@@ -43,6 +43,7 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    enableAssertions = true
 
     testLogging {
         events 'passed', 'skipped', 'failed'
@@ -57,6 +58,7 @@ test {
 
 application {
     mainClass.set("baymax.Launcher")
+    applicationDefaultJvmArgs = ['-ea']
 }
 
 java {
@@ -86,4 +88,5 @@ tasks.register('runTextUi', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass.set('baymax.Baymax')
     standardInput = System.in
+    jvmArgs '-ea'
 }
