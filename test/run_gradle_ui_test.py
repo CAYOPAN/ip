@@ -29,7 +29,7 @@ def main() -> int:
     console_input = sys.stdin.read()
     with tempfile.TemporaryDirectory(prefix="baymax-ui-test-") as work_dir:
         app_result = subprocess.run(
-            ["java", "-cp", str(shadow_jar), "baymax.Baymax"],
+            ["java", "-ea", "-cp", str(shadow_jar), "baymax.Baymax"],
             cwd=work_dir,
             input=console_input,
             text=True,

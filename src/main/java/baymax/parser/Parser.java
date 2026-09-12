@@ -78,10 +78,16 @@ public final class Parser {
         String taskNumberText;
 
         if (commandType == CommandType.MARK) {
+            assert command.startsWith("mark ")
+                    : "Mark index parsing should receive mark command text.";
             taskNumberText = command.substring("mark ".length()).trim();
         } else if (commandType == CommandType.UNMARK) {
+            assert command.startsWith("unmark ")
+                    : "Unmark index parsing should receive unmark command text.";
             taskNumberText = command.substring("unmark ".length()).trim();
         } else if (commandType == CommandType.DELETE) {
+            assert command.equals("delete") || command.startsWith("delete ")
+                    : "Delete index parsing should receive delete command text.";
             taskNumberText = command.equals("delete")
                     ? ""
                     : command.substring("delete ".length()).trim();
@@ -104,6 +110,8 @@ public final class Parser {
      * @return the todo description
      */
     public static String parseTodoDescription(String command) {
+        assert command.startsWith("todo")
+                : "Todo description parsing should receive todo command text.";
         String description =
                 command.substring("todo".length()).trim();
 
@@ -121,6 +129,8 @@ public final class Parser {
      * @return the keyword to search for
      */
     public static String parseFindKeyword(String command) {
+        assert command.startsWith("find")
+                : "Find keyword parsing should receive find command text.";
         String keyword =
                 command.substring("find".length()).trim();
 
@@ -135,23 +145,46 @@ public final class Parser {
      * Parsed deadline details.
      *
      * @param description the deadline description
-     * @param date the deadline date
+     * @param dueDate the deadline date
      */
     public record DeadlineDetails(
-            String description, LocalDate date) {
+            String description, LocalDate dueDate) {
     }
 
     /**
      * Parsed event details.
      *
      * @param description the event description
-     * @param from the event start date
-     * @param to the event end date
+     * @param startDate the event start date
+     * @param endDate the event end date
      */
     public record EventDetails(
             String description,
-            LocalDate from,
-            LocalDate to) {
+            LocalDate startDate,
+            LocalDate endDate) {
+    }
+
+    /**
+     * Stores deadline fields before the date text is validated and converted.
+     *
+     * @param description the deadline description
+     * @param dueDateText the unparsed deadline date
+     */
+    private record DeadlineTextDetails(
+            String description, String dueDateText) {
+    }
+
+    /**
+     * Stores event fields before the date text is validated and converted.
+     *
+     * @param description the event description
+     * @param startDateText the unparsed event start date
+     * @param endDateText the unparsed event end date
+     */
+    private record EventTextDetails(
+            String description,
+            String startDateText,
+            String endDateText) {
     }
 
     /**
@@ -161,29 +194,20 @@ public final class Parser {
      * @return parsed deadline details
      */
     public static DeadlineDetails parseDeadline(String command) {
-        String deadlineDetails =
-                command.substring("deadline".length()).trim();
+        assert command.startsWith("deadline")
+                : "Deadline parsing should receive deadline command text.";
+        DeadlineTextDetails details = extractDeadlineTextDetails(command);
 
-        int byMarkerIndex = deadlineDetails.indexOf("/by");
-
-        String description = byMarkerIndex < 0
-                ? ""
-                : deadlineDetails.substring(0, byMarkerIndex).trim();
-
-        String by = byMarkerIndex < 0
-                ? ""
-                : deadlineDetails.substring(
-                byMarkerIndex + "/by".length()).trim();
-
-        if (byMarkerIndex < 0 || by.isEmpty()) {
+        if (details.dueDateText().isEmpty()) {
             throw new EmptyByException();
         }
 
-        if (description.isEmpty()) {
+        if (details.description().isEmpty()) {
             throw new EmptyDescriptionException("deadline");
         }
 
-        return new DeadlineDetails(description, parseDate(by));
+        return new DeadlineDetails(
+                details.description(), parseDate(details.dueDateText()));
     }
 
     /**
@@ -193,48 +217,79 @@ public final class Parser {
      * @return parsed event details
      */
     public static EventDetails parseEvent(String command) {
-        String eventDetails =
-                command.substring("event".length()).trim();
+        assert command.startsWith("event")
+                : "Event parsing should receive event command text.";
+        EventTextDetails details = extractEventTextDetails(command);
 
-        int fromMarkerIndex = eventDetails.indexOf("/from");
-
-        int toMarkerIndex = fromMarkerIndex < 0
-                ? -1
-                : eventDetails.indexOf(
-                "/to",
-                fromMarkerIndex + "/from".length());
-
-        String description = fromMarkerIndex < 0
-                ? ""
-                : eventDetails.substring(0, fromMarkerIndex).trim();
-
-        String from = fromMarkerIndex < 0 || toMarkerIndex < 0
-                ? ""
-                : eventDetails.substring(
-                fromMarkerIndex + "/from".length(),
-                toMarkerIndex).trim();
-
-        String to = toMarkerIndex < 0
-                ? ""
-                : eventDetails.substring(
-                toMarkerIndex + "/to".length()).trim();
-
-        if (description.isEmpty()) {
+        if (details.description().isEmpty()) {
             throw new EmptyDescriptionException("event");
         }
 
-        if (from.isEmpty()) {
+        if (details.startDateText().isEmpty()) {
             throw new EmptyFromException();
         }
 
-        if (to.isEmpty()) {
+        if (details.endDateText().isEmpty()) {
             throw new EmptyToException();
         }
 
         return new EventDetails(
-                description,
-                parseDate(from),
-                parseDate(to));
+                details.description(),
+                parseDate(details.startDateText()),
+                parseDate(details.endDateText()));
+    }
+
+    /**
+     * Separates a deadline command into its raw description and date text.
+     *
+     * @param command the complete deadline command
+     * @return the raw deadline fields, with empty values for a missing marker
+     */
+    private static DeadlineTextDetails extractDeadlineTextDetails(String command) {
+        String deadlineDetails =
+                command.substring("deadline".length()).trim();
+        int byMarkerIndex = deadlineDetails.indexOf("/by");
+
+        if (byMarkerIndex < 0) {
+            return new DeadlineTextDetails("", "");
+        }
+
+        String description =
+                deadlineDetails.substring(0, byMarkerIndex).trim();
+        String dueDateText = deadlineDetails.substring(
+                byMarkerIndex + "/by".length()).trim();
+        return new DeadlineTextDetails(description, dueDateText);
+    }
+
+    /**
+     * Separates an event command into its raw description and date text.
+     *
+     * @param command the complete event command
+     * @return the raw event fields, with empty values for missing markers
+     */
+    private static EventTextDetails extractEventTextDetails(String command) {
+        String eventDetails =
+                command.substring("event".length()).trim();
+        int fromMarkerIndex = eventDetails.indexOf("/from");
+
+        if (fromMarkerIndex < 0) {
+            return new EventTextDetails("", "", "");
+        }
+
+        String description =
+                eventDetails.substring(0, fromMarkerIndex).trim();
+        int toMarkerIndex = eventDetails.indexOf(
+                "/to", fromMarkerIndex + "/from".length());
+        if (toMarkerIndex < 0) {
+            return new EventTextDetails(description, "", "");
+        }
+
+        String startDateText = eventDetails.substring(
+                fromMarkerIndex + "/from".length(), toMarkerIndex).trim();
+        String endDateText = eventDetails.substring(
+                toMarkerIndex + "/to".length()).trim();
+        return new EventTextDetails(
+                description, startDateText, endDateText);
     }
 
     /**
@@ -244,6 +299,8 @@ public final class Parser {
      * @return the parsed date
      */
     private static LocalDate parseDate(String dateText) {
+        assert dateText != null && !dateText.isBlank()
+                : "Date parsing should receive non-empty date text.";
         try {
             return LocalDate.parse(dateText);
         } catch (DateTimeParseException exception) {

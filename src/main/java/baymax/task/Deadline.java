@@ -9,17 +9,18 @@ import java.time.format.DateTimeFormatter;
 public class Deadline extends Task {
 
     /** The date by which the task should be completed. */
-    private final LocalDate by;
+    private final LocalDate dueDate;
 
     /**
      * Creates a new unfinished deadline task.
      *
      * @param description the text describing the task
-     * @param by the date by which the task should be completed
+     * @param dueDate the date by which the task should be completed
      */
-    public Deadline(String description, LocalDate by) {
+    public Deadline(String description, LocalDate dueDate) {
         super(description);
-        this.by = by;
+        assert dueDate != null : "Deadline dates should be parsed before construction.";
+        this.dueDate = dueDate;
     }
 
     /**
@@ -27,8 +28,8 @@ public class Deadline extends Task {
      *
      * @return the due date in {@code MMM dd yyyy} format
      */
-    private String getFormattedBy() {
-        return this.by.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
+    private String formatDueDate() {
+        return dueDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy"));
     }
 
     /**
@@ -38,7 +39,7 @@ public class Deadline extends Task {
      */
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + getFormattedBy() + ")";
+        return "[D]" + super.toString() + " (by: " + formatDueDate() + ")";
     }
 
     /**
@@ -48,6 +49,6 @@ public class Deadline extends Task {
      */
     @Override
     public String toStorageString() {
-        return "D" + " | " + super.toStorageString() + " | " + this.by;
+        return "D" + " | " + super.toStorageString() + " | " + dueDate;
     }
 }

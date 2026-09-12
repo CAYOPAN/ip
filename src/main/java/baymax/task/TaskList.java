@@ -22,6 +22,8 @@ public class TaskList {
      * @param tasks the tasks to manage
      */
     public TaskList(ArrayList<Task> tasks) {
+        assert tasks != null && !tasks.contains(null)
+                : "TaskList should be backed by a collection of non-null tasks.";
         this.tasks = tasks;
     }
 
@@ -31,6 +33,7 @@ public class TaskList {
      * @param task the task to add
      */
     public void add(Task task) {
+        assert task != null : "TaskList should only contain real tasks.";
         tasks.add(task);
     }
 
@@ -41,6 +44,8 @@ public class TaskList {
      * @return the task at the index
      */
     public Task get(int index) {
+        assert index >= 0 && index < tasks.size()
+                : "Task retrieval should use a valid zero-based index.";
         return tasks.get(index);
     }
 
@@ -51,6 +56,8 @@ public class TaskList {
      * @return the removed task
      */
     public Task remove(int index) {
+        assert index >= 0 && index < tasks.size()
+                : "Task removal should use a valid zero-based index.";
         return tasks.remove(index);
     }
 
@@ -73,6 +80,9 @@ public class TaskList {
      * @return a task list containing matching tasks in their original order
      */
     public TaskList find(String keyword) {
+        assert keyword != null && !keyword.isBlank()
+                : "Task search should receive a validated keyword.";
+
         String lowercaseKeyword = keyword.toLowerCase();
         ArrayList<Task> matchingTasks = tasks.stream()
                 .filter(task -> task.getDescription().toLowerCase().contains(lowercaseKeyword))

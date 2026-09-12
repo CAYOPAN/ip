@@ -6,6 +6,7 @@ This file is the source of truth for the project's scripted console UI tests and
 
 - Working directory: repository root
 - Java version: 25
+- Java assertions: enabled with `-ea`
 - Command wrapper: `python test/run_gradle_ui_test.py` builds the Shadow JAR with Gradle and runs `baymax.Baymax` from isolated temporary storage
 - Output comparison: exact after CRLF-to-LF normalization and removal of one final newline
 - Captured output: stdout and stderr combined
@@ -278,7 +279,11 @@ ____________________________________________________________
 
 ## Latest test session
 
+<<<<<<< HEAD
 - Recorded: 2026-09-12T15:04:48+08:00
+=======
+- Recorded: 2026-09-12T16:07:22+08:00
+>>>>>>> master
 - Result: PASS (6 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text

@@ -103,6 +103,7 @@ public class StorageTest {
         Files.writeString(filePath, String.join(System.lineSeparator(),
                 "T | 0 | valid todo",
                 "T | 0",
+                "T | 0 |   ",
                 "T | maybe | invalid done flag",
                 "X | 0 | unknown task type",
                 "D | 0 | invalid deadline | 2019-99-99",

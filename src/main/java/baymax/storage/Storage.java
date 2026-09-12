@@ -18,6 +18,23 @@ import baymax.task.Todo;
  * Loads tasks from and saves tasks to Baymax's data file.
  */
 public class Storage {
+    private static final int TASK_TYPE_FIELD_INDEX = 0;
+    private static final int COMPLETION_STATUS_FIELD_INDEX = 1;
+    private static final int DESCRIPTION_FIELD_INDEX = 2;
+    private static final int PRIMARY_DATE_FIELD_INDEX = 3;
+    private static final int EVENT_END_DATE_FIELD_INDEX = 4;
+
+    private static final int TODO_FIELD_COUNT = 3;
+    private static final int DEADLINE_FIELD_COUNT = 4;
+    private static final int EVENT_FIELD_COUNT = 5;
+
+    private static final String STORAGE_FIELD_SEPARATOR_REGEX = "\\s*\\|\\s*";
+    private static final String COMPLETED_STATUS = "1";
+    private static final String INCOMPLETE_STATUS = "0";
+    private static final String TODO_TYPE = "T";
+    private static final String DEADLINE_TYPE = "D";
+    private static final String EVENT_TYPE = "E";
+
     private final String filePath;
 
     /**
@@ -26,6 +43,8 @@ public class Storage {
      * @param filePath the data file path used to persist tasks
      */
     public Storage(String filePath) {
+        assert filePath != null && !filePath.isBlank()
+                : "Storage should be configured with a real file path.";
         this.filePath = filePath;
     }
 
@@ -36,6 +55,8 @@ public class Storage {
      * @throws IOException if the file cannot be written
      */
     public void save(TaskList taskList) throws IOException {
+        assert taskList != null : "Storage.save should receive a task list.";
+
         File file = new File(filePath);
         File parent = file.getParentFile();
 
@@ -46,6 +67,7 @@ public class Storage {
         try (FileWriter fileWriter = new FileWriter(filePath)) {
             for (int i = 0; i < taskList.size(); i++) {
                 Task task = taskList.get(i);
+                assert task != null : "TaskList should not contain null tasks.";
                 fileWriter.write(task.toStorageString());
                 fileWriter.write(System.lineSeparator());
             }
@@ -65,48 +87,71 @@ public class Storage {
 
         try (Scanner scanner = new Scanner(new File(filePath))) {
             while (scanner.hasNextLine()) {
-                String[] fields = scanner.nextLine().split("\\s*\\|\\s*", -1);
-                if (fields.length < 3) {
-                    continue;
+                Task task = parseTask(scanner.nextLine());
+                if (task != null) {
+                    taskList.add(task);
                 }
-
-                boolean isDone;
-                if (fields[1].equals("1")) {
-                    isDone = true;
-                } else if (fields[1].equals("0")) {
-                    isDone = false;
-                } else {
-                    continue;
-                }
-
-                Task task;
-                try {
-                    task = switch (fields[0]) {
-                        case "T" -> fields.length == 3 ? new Todo(fields[2]) : null;
-                        case "D" -> fields.length == 4
-                            ? new Deadline(fields[2], LocalDate.parse(fields[3]))
-                            : null;
-                        case "E" -> fields.length == 5
-                            ? new Event(fields[2], LocalDate.parse(fields[3]), LocalDate.parse(fields[4]))
-                            : null;
-                        default -> null;
-                    };
-                } catch (DateTimeParseException exception) {
-                    continue;
-                }
-
-                if (task == null) {
-                    continue;
-                }
-                if (isDone) {
-                    task.markAsDone();
-                }
-                taskList.add(task);
             }
-        } catch (IOException io) {
+        } catch (IOException exception) {
             return new TaskList();
         }
 
         return new TaskList(taskList);
+    }
+
+    /**
+     * Parses one storage record, returning {@code null} for a malformed record.
+     *
+     * @param record the storage record to parse
+     * @return the restored task, or {@code null} if the record is malformed
+     */
+    private Task parseTask(String record) {
+        String[] fields = record.split(STORAGE_FIELD_SEPARATOR_REGEX, -1);
+        if (fields.length < TODO_FIELD_COUNT
+                || fields[DESCRIPTION_FIELD_INDEX].isBlank()
+                || !hasValidCompletionStatus(fields)) {
+            return null;
+        }
+
+        Task task;
+        try {
+            task = createTask(fields);
+        } catch (DateTimeParseException exception) {
+            return null;
+        }
+
+        if (task == null) {
+            return null;
+        }
+        if (fields[COMPLETION_STATUS_FIELD_INDEX].equals(COMPLETED_STATUS)) {
+            task.markAsDone();
+        }
+        return task;
+    }
+
+    private boolean hasValidCompletionStatus(String[] fields) {
+        String completionStatus = fields[COMPLETION_STATUS_FIELD_INDEX];
+        return completionStatus.equals(COMPLETED_STATUS)
+                || completionStatus.equals(INCOMPLETE_STATUS);
+    }
+
+    private Task createTask(String[] fields) {
+        return switch (fields[TASK_TYPE_FIELD_INDEX]) {
+            case TODO_TYPE -> fields.length == TODO_FIELD_COUNT
+                    ? new Todo(fields[DESCRIPTION_FIELD_INDEX])
+                    : null;
+            case DEADLINE_TYPE -> fields.length == DEADLINE_FIELD_COUNT
+                    ? new Deadline(
+                            fields[DESCRIPTION_FIELD_INDEX],
+                            LocalDate.parse(fields[PRIMARY_DATE_FIELD_INDEX]))
+                    : null;
+            case EVENT_TYPE -> fields.length == EVENT_FIELD_COUNT
+                    ? new Event(
+                            fields[DESCRIPTION_FIELD_INDEX],
+                            LocalDate.parse(fields[PRIMARY_DATE_FIELD_INDEX]),
+                            LocalDate.parse(fields[EVENT_END_DATE_FIELD_INDEX]))
+                    : null;
+            default -> null;
+        };
     }
 }
