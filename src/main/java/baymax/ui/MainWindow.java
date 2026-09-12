@@ -40,6 +40,11 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     public void initialize() {
+        assert scrollPane != null : "MainWindow.fxml should inject scrollPane.";
+        assert dialogContainer != null : "MainWindow.fxml should inject dialogContainer.";
+        assert userInput != null : "MainWindow.fxml should inject userInput.";
+        assert sendButton != null : "MainWindow.fxml should inject sendButton.";
+
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
         userImage = createAvatar(Color.DODGERBLUE);
         baymaxImage = createAvatar(Color.CRIMSON);
@@ -51,6 +56,7 @@ public class MainWindow extends AnchorPane {
      * @param bot the shared Baymax command processor
      */
     public void setBot(Baymax bot) {
+        assert bot != null : "MainWindow should receive Baymax before processing input.";
         this.bot = bot;
     }
 
@@ -60,6 +66,9 @@ public class MainWindow extends AnchorPane {
      * @param message the message to display
      */
     public void showBotMessage(String message) {
+        assert dialogContainer != null : "Dialog container should be initialized before display.";
+        assert baymaxImage != null : "Baymax avatar should be initialized before display.";
+
         dialogContainer.getChildren().add(
                 DialogBox.getBaymaxDialog(message, baymaxImage));
     }
@@ -69,6 +78,10 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     private void handleUserInput() {
+        assert bot != null : "Baymax should be set before handling user input.";
+        assert userImage != null : "User avatar should be initialized before display.";
+        assert baymaxImage != null : "Baymax avatar should be initialized before display.";
+
         String input = userInput.getText().trim();
         if (input.isEmpty()) {
             return;
@@ -100,6 +113,8 @@ public class MainWindow extends AnchorPane {
     }
 
     private Image createAvatar(Color color) {
+        assert color != null : "Avatar creation should receive a color.";
+
         WritableImage avatar = new WritableImage(AVATAR_SIZE, AVATAR_SIZE);
         PixelWriter pixelWriter = avatar.getPixelWriter();
         double center = (AVATAR_SIZE - 1) / 2.0;

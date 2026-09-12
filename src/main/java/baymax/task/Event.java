@@ -24,6 +24,8 @@ public class Event extends Task {
      */
     public Event(String description, LocalDate startDate, LocalDate endDate) {
         super(description);
+        assert startDate != null : "Event start dates should be parsed before construction.";
+        assert endDate != null : "Event end dates should be parsed before construction.";
         this.startDate = startDate;
         this.endDate = endDate;
     }

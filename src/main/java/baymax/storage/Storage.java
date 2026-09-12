@@ -43,6 +43,8 @@ public class Storage {
      * @param filePath the data file path used to persist tasks
      */
     public Storage(String filePath) {
+        assert filePath != null && !filePath.isBlank()
+                : "Storage should be configured with a real file path.";
         this.filePath = filePath;
     }
 
@@ -53,6 +55,8 @@ public class Storage {
      * @throws IOException if the file cannot be written
      */
     public void save(TaskList taskList) throws IOException {
+        assert taskList != null : "Storage.save should receive a task list.";
+
         File file = new File(filePath);
         File parent = file.getParentFile();
 
@@ -63,6 +67,7 @@ public class Storage {
         try (FileWriter fileWriter = new FileWriter(filePath)) {
             for (int i = 0; i < taskList.size(); i++) {
                 Task task = taskList.get(i);
+                assert task != null : "TaskList should not contain null tasks.";
                 fileWriter.write(task.toStorageString());
                 fileWriter.write(System.lineSeparator());
             }
@@ -102,7 +107,9 @@ public class Storage {
      */
     private Task parseTask(String record) {
         String[] fields = record.split(STORAGE_FIELD_SEPARATOR_REGEX, -1);
-        if (fields.length < TODO_FIELD_COUNT || !hasValidCompletionStatus(fields)) {
+        if (fields.length < TODO_FIELD_COUNT
+                || fields[DESCRIPTION_FIELD_INDEX].isBlank()
+                || !hasValidCompletionStatus(fields)) {
             return null;
         }
 

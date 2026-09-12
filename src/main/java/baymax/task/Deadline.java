@@ -19,6 +19,7 @@ public class Deadline extends Task {
      */
     public Deadline(String description, LocalDate dueDate) {
         super(description);
+        assert dueDate != null : "Deadline dates should be parsed before construction.";
         this.dueDate = dueDate;
     }
 
