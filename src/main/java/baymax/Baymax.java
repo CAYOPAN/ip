@@ -47,6 +47,7 @@ public class Baymax {
     public Baymax(String filePath) {
         storage = new Storage(filePath);
         tasks = storage.load();
+        assert tasks != null : "Storage.load should always return a TaskList.";
     }
 
     /**
@@ -88,6 +89,8 @@ public class Baymax {
 
     private CommandResponse processMark(
             String command, Parser.CommandType commandType) {
+        assert commandType == Parser.CommandType.MARK
+                : "processMark should only be called for mark commands.";
         int taskIndex = Parser.parseTaskIndex(command, commandType);
         if (isValidTaskIndex(taskIndex)) {
             tasks.get(taskIndex).markAsDone();
@@ -99,6 +102,8 @@ public class Baymax {
 
     private CommandResponse processUnmark(
             String command, Parser.CommandType commandType) {
+        assert commandType == Parser.CommandType.UNMARK
+                : "processUnmark should only be called for unmark commands.";
         int taskIndex = Parser.parseTaskIndex(command, commandType);
         if (isValidTaskIndex(taskIndex)) {
             tasks.get(taskIndex).markAsUndone();
@@ -110,6 +115,8 @@ public class Baymax {
 
     private CommandResponse processDelete(
             String command, Parser.CommandType commandType) {
+        assert commandType == Parser.CommandType.DELETE
+                : "processDelete should only be called for delete commands.";
         int taskIndex = Parser.parseTaskIndex(command, commandType);
         if (isValidTaskIndex(taskIndex)) {
             Task removedTask = tasks.remove(taskIndex);
@@ -120,26 +127,31 @@ public class Baymax {
 
     private CommandResponse processFind(String command) {
         String keyword = Parser.parseFindKeyword(command);
+        assert keyword != null && !keyword.isBlank()
+                : "Parser should return a non-blank find keyword.";
         return new CommandResponse(formatTaskList(
                 " Here are the matching tasks in your list:", tasks.find(keyword)), false);
     }
 
     private CommandResponse processTodo(String command) {
         String description = Parser.parseTodoDescription(command);
-        tasks.add(new Todo(description));
-        return new CommandResponse(formatAddedTask(tasks.get(tasks.size() - 1)), false);
+        Task task = new Todo(description);
+        tasks.add(task);
+        return new CommandResponse(formatAddedTask(task), false);
     }
 
     private CommandResponse processDeadline(String command) {
         Parser.DeadlineDetails deadline = Parser.parseDeadline(command);
-        tasks.add(new Deadline(deadline.description(), deadline.date()));
-        return new CommandResponse(formatAddedTask(tasks.get(tasks.size() - 1)), false);
+        Task task = new Deadline(deadline.description(), deadline.date());
+        tasks.add(task);
+        return new CommandResponse(formatAddedTask(task), false);
     }
 
     private CommandResponse processEvent(String command) {
         Parser.EventDetails event = Parser.parseEvent(command);
-        tasks.add(new Event(event.description(), event.from(), event.to()));
-        return new CommandResponse(formatAddedTask(tasks.get(tasks.size() - 1)), false);
+        Task task = new Event(event.description(), event.from(), event.to());
+        tasks.add(task);
+        return new CommandResponse(formatAddedTask(task), false);
     }
 
     private boolean isValidTaskIndex(int taskIndex) {
