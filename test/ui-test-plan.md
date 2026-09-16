@@ -32,11 +32,12 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 ```
 
@@ -63,32 +64,33 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [T][ ] buy milk
- Now you have 1 tasks in the list.
+ You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________
- Here are the tasks in your list:
+ Here is your current care plan:
  1.[T][ ] buy milk
 ____________________________________________________________
 ____________________________________________________________
- Nice! I've marked this task as done:
+ Excellent. This task is complete:
    [T][X] buy milk
 ____________________________________________________________
 ____________________________________________________________
- OK, I've marked this task as not done yet:
+ Understood. This task still requires care:
    [T][ ] buy milk
 ____________________________________________________________
 ____________________________________________________________
- Here are the tasks in your list:
+ Here is your current care plan:
  1.[T][ ] buy milk
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 ```
 
@@ -113,26 +115,27 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [D][ ] submit report (by: Dec 02 2019)
- Now you have 1 tasks in the list.
+ You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [E][ ] team meeting (from: Dec 02 2019 to: Dec 04 2019)
- Now you have 2 tasks in the list.
+ You now have 2 tasks under my care.
 ____________________________________________________________
 ____________________________________________________________
- Here are the tasks in your list:
+ Here is your current care plan:
  1.[D][ ] submit report (by: Dec 02 2019)
  2.[E][ ] team meeting (from: Dec 02 2019 to: Dec 04 2019)
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 ```
 
@@ -158,23 +161,28 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
+ I have some concerns.
  Sorry, a deadline needs a due date.
 ____________________________________________________________
 ____________________________________________________________
+ I have some concerns.
  Sorry, an event needs a start time.
 ____________________________________________________________
 ____________________________________________________________
+ I have some concerns.
  Sorry, please provide a valid task number.
 ____________________________________________________________
 ____________________________________________________________
- Sorry, that task does not exist.
+ I have some concerns.
+ Sorry, that task is not in your care plan.
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 ```
 
@@ -200,30 +208,31 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [T][ ] buy milk
- Now you have 1 tasks in the list.
+ You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [T][ ] submit report
- Now you have 2 tasks in the list.
+ You now have 2 tasks under my care.
 ____________________________________________________________
 ____________________________________________________________
- Noted. I've removed this task:
+ This task is no longer under my care:
    [T][ ] buy milk
- Now you have 1 tasks in the list.
+ You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________
- Here are the tasks in your list:
+ Here is your current care plan:
  1.[T][ ] submit report
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 ```
 
@@ -249,36 +258,37 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [T][ ] read book
- Now you have 1 tasks in the list.
+ You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [D][ ] return book (by: Jun 06 2019)
- Now you have 2 tasks in the list.
+ You now have 2 tasks under my care.
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [T][ ] buy milk
- Now you have 3 tasks in the list.
+ You now have 3 tasks under my care.
 ____________________________________________________________
 ____________________________________________________________
- Here are the matching tasks in your list:
+ I found these tasks in your care plan:
  1.[D][ ] return book (by: Jun 06 2019)
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 ```
 
 ## Latest test session
 
-- Recorded: 2026-09-16T17:44:22+08:00
+- Recorded: 2026-09-16T19:29:06+08:00
 - Result: PASS (6 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text
@@ -296,11 +306,12 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 
 Status: PASS
@@ -324,32 +335,33 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [T][ ] buy milk
- Now you have 1 tasks in the list.
+ You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________
- Here are the tasks in your list:
+ Here is your current care plan:
  1.[T][ ] buy milk
 ____________________________________________________________
 ____________________________________________________________
- Nice! I've marked this task as done:
+ Excellent. This task is complete:
    [T][X] buy milk
 ____________________________________________________________
 ____________________________________________________________
- OK, I've marked this task as not done yet:
+ Understood. This task still requires care:
    [T][ ] buy milk
 ____________________________________________________________
 ____________________________________________________________
- Here are the tasks in your list:
+ Here is your current care plan:
  1.[T][ ] buy milk
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 
 Status: PASS
@@ -371,26 +383,27 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [D][ ] submit report (by: Dec 02 2019)
- Now you have 1 tasks in the list.
+ You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [E][ ] team meeting (from: Dec 02 2019 to: Dec 04 2019)
- Now you have 2 tasks in the list.
+ You now have 2 tasks under my care.
 ____________________________________________________________
 ____________________________________________________________
- Here are the tasks in your list:
+ Here is your current care plan:
  1.[D][ ] submit report (by: Dec 02 2019)
  2.[E][ ] team meeting (from: Dec 02 2019 to: Dec 04 2019)
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 
 Status: PASS
@@ -413,23 +426,28 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
+ I have some concerns.
  Sorry, a deadline needs a due date.
 ____________________________________________________________
 ____________________________________________________________
+ I have some concerns.
  Sorry, an event needs a start time.
 ____________________________________________________________
 ____________________________________________________________
+ I have some concerns.
  Sorry, please provide a valid task number.
 ____________________________________________________________
 ____________________________________________________________
- Sorry, that task does not exist.
+ I have some concerns.
+ Sorry, that task is not in your care plan.
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 
 Status: PASS
@@ -452,30 +470,31 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [T][ ] buy milk
- Now you have 1 tasks in the list.
+ You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [T][ ] submit report
- Now you have 2 tasks in the list.
+ You now have 2 tasks under my care.
 ____________________________________________________________
 ____________________________________________________________
- Noted. I've removed this task:
+ This task is no longer under my care:
    [T][ ] buy milk
- Now you have 1 tasks in the list.
+ You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________
- Here are the tasks in your list:
+ Here is your current care plan:
  1.[T][ ] submit report
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 
 Status: PASS
@@ -498,30 +517,31 @@ BBBB  aaaaa    y    m  m  m  aaaaa    x
 B   B a   a    y    m     m  a   a   x x
 B   B a   a    y    m     m  a   a  x   x
 BBBB  a   a    y    m     m  a   a  x   x
-Hello! I'm Baymax. Your personal task companion.
-What can I do for you?
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [T][ ] read book
- Now you have 1 tasks in the list.
+ You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [D][ ] return book (by: Jun 06 2019)
- Now you have 2 tasks in the list.
+ You now have 2 tasks under my care.
 ____________________________________________________________
 ____________________________________________________________
- Got it. I've added this task:
+ I have added this task to your care plan:
    [T][ ] buy milk
- Now you have 3 tasks in the list.
+ You now have 3 tasks under my care.
 ____________________________________________________________
 ____________________________________________________________
- Here are the matching tasks in your list:
+ I found these tasks in your care plan:
  1.[D][ ] return book (by: Jun 06 2019)
 ____________________________________________________________
 ____________________________________________________________
- Bye. Hope to see you again soon!
+ I am satisfied with my care. Until next time.
 ____________________________________________________________
 
 Status: PASS

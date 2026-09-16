@@ -1,18 +1,22 @@
 package baymax;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import baymax.ui.MainWindow;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 /**
  * Creates Baymax's JavaFX window and connects it to the command-processing core.
  */
 public class Main extends Application {
+    private static final String APPLICATION_FONT_PATH = "/fonts/Orbitron.ttf";
+
     private Baymax baymax;
 
     /**
@@ -24,6 +28,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         baymax = new Baymax();
+        loadApplicationFont();
 
         FXMLLoader fxmlLoader =
                 new FXMLLoader(Main.class.getResource("/view/MainWindow.fxml"));
@@ -31,15 +36,24 @@ public class Main extends Application {
         MainWindow mainWindow = fxmlLoader.getController();
         mainWindow.setBot(baymax);
         mainWindow.showBotMessage(
-                "Hello! I'm Baymax. Your personal task companion.\n"
-                        + "What can I do for you?");
+                "Hello. I am Baymax, your personal task companion.\n"
+                        + "I am here to keep your tasks healthy and organized.\n"
+                        + "How may I assist you?");
 
         Scene scene = new Scene(root);
-        stage.setTitle("Baymax");
+        stage.setTitle("Baymax Care Companion");
         stage.setScene(scene);
         stage.setMinWidth(420.0);
         stage.setMinHeight(600.0);
         stage.show();
+    }
+
+    private static void loadApplicationFont() throws IOException {
+        try (InputStream fontStream = Main.class.getResourceAsStream(APPLICATION_FONT_PATH)) {
+            if (fontStream == null || Font.loadFont(fontStream, 14.0) == null) {
+                throw new IOException("Unable to load application font: " + APPLICATION_FONT_PATH);
+            }
+        }
     }
 
     /**
@@ -54,7 +68,7 @@ public class Main extends Application {
         try {
             baymax.saveTasks();
         } catch (IOException exception) {
-            System.err.println("Can not save tasks list before closing Baymax.");
+            System.err.println("Baymax could not save your care plan before closing.");
         }
     }
 }

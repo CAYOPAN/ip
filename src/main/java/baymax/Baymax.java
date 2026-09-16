@@ -62,9 +62,9 @@ public class Baymax {
 
             return switch (commandType) {
                 case BYE -> new CommandResponse(
-                        " Bye. Hope to see you again soon!", true);
+                        " I am satisfied with my care. Until next time.", true);
                 case LIST -> new CommandResponse(formatTaskList(
-                        " Here are the tasks in your list:", tasks), false);
+                        " Here is your current care plan:", tasks), false);
                 case MARK -> processMark(command, commandType);
                 case UNMARK -> processUnmark(command, commandType);
                 case DELETE -> processDelete(command, commandType);
@@ -74,7 +74,7 @@ public class Baymax {
                 case EVENT -> processEvent(command);
             };
         } catch (BaymaxException exception) {
-            return new CommandResponse(exception.getMessage(), false);
+            return createConcernResponse(exception.getMessage());
         }
     }
 
@@ -95,9 +95,9 @@ public class Baymax {
         if (isValidTaskIndex(taskIndex)) {
             tasks.get(taskIndex).markAsDone();
             return new CommandResponse(formatTaskChange(
-                    " Nice! I've marked this task as done:", tasks.get(taskIndex)), false);
+                    " Excellent. This task is complete:", tasks.get(taskIndex)), false);
         }
-        return new CommandResponse(" Sorry, that task does not exist.", false);
+        return createConcernResponse(" Sorry, that task is not in your care plan.");
     }
 
     private CommandResponse processUnmark(
@@ -108,9 +108,9 @@ public class Baymax {
         if (isValidTaskIndex(taskIndex)) {
             tasks.get(taskIndex).markAsUndone();
             return new CommandResponse(formatTaskChange(
-                    " OK, I've marked this task as not done yet:", tasks.get(taskIndex)), false);
+                    " Understood. This task still requires care:", tasks.get(taskIndex)), false);
         }
-        return new CommandResponse(" Sorry, that task does not exist.", false);
+        return createConcernResponse(" Sorry, that task is not in your care plan.");
     }
 
     private CommandResponse processDelete(
@@ -122,7 +122,7 @@ public class Baymax {
             Task removedTask = tasks.remove(taskIndex);
             return new CommandResponse(formatDeletedTask(removedTask), false);
         }
-        return new CommandResponse(" Sorry, that task does not exist.", false);
+        return createConcernResponse(" Sorry, that task is not in your care plan.");
     }
 
     private CommandResponse processFind(String command) {
@@ -130,7 +130,7 @@ public class Baymax {
         assert keyword != null && !keyword.isBlank()
                 : "Parser should return a non-blank find keyword.";
         return new CommandResponse(formatTaskList(
-                " Here are the matching tasks in your list:", tasks.find(keyword)), false);
+                " I found these tasks in your care plan:", tasks.find(keyword)), false);
     }
 
     private CommandResponse processTodo(String command) {
@@ -159,6 +159,14 @@ public class Baymax {
         return taskIndex >= 0 && taskIndex < tasks.size();
     }
 
+    private CommandResponse createConcernResponse(String message) {
+        assert message != null && !message.isBlank()
+                : "A concern response should contain an explanation.";
+        return new CommandResponse(
+                " I have some concerns." + System.lineSeparator() + message,
+                false);
+    }
+
     private String formatTaskList(String heading, TaskList taskList) {
         StringBuilder response = new StringBuilder(heading);
         for (int i = 0; i < taskList.size(); i++) {
@@ -176,15 +184,20 @@ public class Baymax {
     }
 
     private String formatAddedTask(Task task) {
-        return " Got it. I've added this task:" + System.lineSeparator()
+        return " I have added this task to your care plan:" + System.lineSeparator()
                 + "   " + task + System.lineSeparator()
-                + " Now you have " + tasks.size() + " tasks in the list.";
+                + formatTaskCount();
     }
 
     private String formatDeletedTask(Task task) {
-        return " Noted. I've removed this task:" + System.lineSeparator()
+        return " This task is no longer under my care:" + System.lineSeparator()
                 + "   " + task + System.lineSeparator()
-                + " Now you have " + tasks.size() + " tasks in the list.";
+                + formatTaskCount();
+    }
+
+    private String formatTaskCount() {
+        String taskNoun = tasks.size() == 1 ? "task" : "tasks";
+        return " You now have " + tasks.size() + " " + taskNoun + " under my care.";
     }
 
     /**
