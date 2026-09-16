@@ -40,3 +40,30 @@ Use Java 25 for all commands.
 The JavaFX application starts through `baymax.Launcher`, which delegates to
 `baymax.Main`. The separate launcher avoids the JavaFX classpath issue
 described in the [SE-EDU JavaFX tutorial](https://se-education.org/guides/tutorials/javaFxPart1.html).
+
+## Input validation and storage recovery
+
+Commands accept leading/trailing spaces, repeated spaces, and tabs. Task numbers
+must be positive integers referring to an existing task. Commands with missing
+arguments report an error and leave the task list unchanged.
+
+Dates use `yyyy-MM-dd` and must exist on the calendar. Events must end strictly
+after their start date; same-day events are rejected. Supply `/by` once for a
+deadline, or `/from` followed by `/to` once each for an event. Slashes in these
+commands are reserved for date parameters. Descriptions cannot contain `|` or
+control characters because those characters would break the storage format.
+
+Tasks with the same type, description, and dates are duplicates, even if one is
+completed. Description comparisons are case-sensitive; command whitespace is
+normalized before comparison.
+
+Baymax creates a missing data file and its parent folders when saving. It writes
+UTF-8 data to a temporary file before replacing the previous file, using an atomic
+replacement when the filesystem supports it. The console also saves when input
+ends without `bye`. If saving fails after `bye`, input stays available for retry.
+
+If `data/Baymax.txt` cannot be read, or contains invalid or duplicate records,
+Baymax displays a warning and disables saving to protect the original file.
+Valid records remain available when individual records are invalid. Back up the
+file, correct its contents or permissions, and restart Baymax before making changes
+you need to save. A save failure in the JavaFX interface leaves input enabled.

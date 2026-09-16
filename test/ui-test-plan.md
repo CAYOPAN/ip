@@ -171,7 +171,7 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  I have some concerns.
- Sorry, an event needs a start time.
+ Sorry, an event needs an end time.
 ____________________________________________________________
 ____________________________________________________________
  I have some concerns.
@@ -286,10 +286,83 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+### TC-007: Recover from invalid input and reject duplicate tasks
+
+- Aim: Verify whitespace normalization, missing arguments, invalid dates and ranges, repeated parameters, unsafe descriptions, and duplicates while keeping the task list usable.
+- Command: `python test/run_gradle_ui_test.py`
+- Inputs:
+```text
+  todo   buy   milk
+todo buy milk
+mark
+todo
+deadline report /by 2024-02-30
+deadline report /by 2024-01-01 /by 2024-01-02
+event meeting /from 2024-01-02 /to 2024-01-02
+todo unsafe|record
+  list
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] buy milk
+ You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, this task is already in your care plan.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, please provide a valid task number.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+     OOPS!!! The description of a todo cannot be empty.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, dates must use the format yyyy-MM-dd.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, use each date parameter once, in order: /by.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, an event must end after its start date.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, task descriptions cannot contain | or control characters.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] buy milk
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
 ## Latest test session
 
-- Recorded: 2026-09-16T20:02:37+08:00
-- Result: PASS (6 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
+- Recorded: 2026-09-16T20:29:12+08:00
+- Result: PASS (7 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text
 === TC-001: Exit immediately ===
@@ -436,7 +509,7 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  I have some concerns.
- Sorry, an event needs a start time.
+ Sorry, an event needs an end time.
 ____________________________________________________________
 ____________________________________________________________
  I have some concerns.
@@ -539,6 +612,76 @@ ____________________________________________________________
 ____________________________________________________________
  I found these tasks in your care plan:
  1.[D][ ] return book (by: Jun 06 2019)
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-007: Recover from invalid input and reject duplicate tasks ===
+Command: python test/run_gradle_ui_test.py
+Console input:
+  todo   buy   milk
+todo buy milk
+mark
+todo
+deadline report /by 2024-02-30
+deadline report /by 2024-01-01 /by 2024-01-02
+event meeting /from 2024-01-02 /to 2024-01-02
+todo unsafe|record
+  list
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] buy milk
+ You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, this task is already in your care plan.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, please provide a valid task number.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+     OOPS!!! The description of a todo cannot be empty.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, dates must use the format yyyy-MM-dd.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, use each date parameter once, in order: /by.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, an event must end after its start date.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, task descriptions cannot contain | or control characters.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] buy milk
 ____________________________________________________________
 ____________________________________________________________
  I am satisfied with my care. Until next time.

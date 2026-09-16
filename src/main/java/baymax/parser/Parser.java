@@ -2,6 +2,8 @@ package baymax.parser;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import baymax.exception.BaymaxException;
 import baymax.exception.EmptyByException;
@@ -41,28 +43,40 @@ public final class Parser {
      * @return the command type
      */
     public static CommandType getCommandType(String command) {
+        command = normalizeCommand(command);
         if (command.equals("bye")) {
             return CommandType.BYE;
         } else if (command.equals("list")) {
             return CommandType.LIST;
-        } else if (command.startsWith("mark ")) {
+        } else if (command.equals("mark") || command.startsWith("mark ")) {
             return CommandType.MARK;
-        } else if (command.startsWith("unmark ")) {
+        } else if (command.equals("unmark") || command.startsWith("unmark ")) {
             return CommandType.UNMARK;
         } else if (command.equals("delete")
                 || command.startsWith("delete ")) {
             return CommandType.DELETE;
-        } else if (command.startsWith("find ")) {
+        } else if (command.equals("find") || command.startsWith("find ")) {
             return CommandType.FIND;
-        } else if (command.startsWith("todo ")) {
+        } else if (command.equals("todo") || command.startsWith("todo ")) {
             return CommandType.TODO;
-        } else if (command.startsWith("deadline ")) {
+        } else if (command.equals("deadline") || command.startsWith("deadline ")) {
             return CommandType.DEADLINE;
-        } else if (command.startsWith("event ")) {
+        } else if (command.equals("event") || command.startsWith("event ")) {
             return CommandType.EVENT;
         }
 
         throw new InvalidCommandException();
+    }
+
+    /** Normalizes spacing and rejects empty commands and embedded control characters. */
+    public static String normalizeCommand(String command) {
+        if (command == null || command.isBlank()) {
+            throw new BaymaxException(" Sorry, please enter a command.");
+        }
+        if (command.chars().anyMatch(value -> Character.isISOControl(value) && value != '\t')) {
+            throw new BaymaxException(" Sorry, please enter one command on a single line.");
+        }
+        return command.strip().replaceAll("\\h+", " ");
     }
 
     /**
@@ -75,16 +89,17 @@ public final class Parser {
     public static int parseTaskIndex(
             String command, CommandType commandType) {
 
+        command = normalizeCommand(command);
         String taskNumberText;
 
         if (commandType == CommandType.MARK) {
-            assert command.startsWith("mark ")
+            assert command.equals("mark") || command.startsWith("mark ")
                     : "Mark index parsing should receive mark command text.";
-            taskNumberText = command.substring("mark ".length()).trim();
+            taskNumberText = command.substring("mark".length()).trim();
         } else if (commandType == CommandType.UNMARK) {
-            assert command.startsWith("unmark ")
+            assert command.equals("unmark") || command.startsWith("unmark ")
                     : "Unmark index parsing should receive unmark command text.";
-            taskNumberText = command.substring("unmark ".length()).trim();
+            taskNumberText = command.substring("unmark".length()).trim();
         } else if (commandType == CommandType.DELETE) {
             assert command.equals("delete") || command.startsWith("delete ")
                     : "Delete index parsing should receive delete command text.";
@@ -96,6 +111,9 @@ public final class Parser {
         }
 
         try {
+            if (!taskNumberText.matches("[0-9]+") || Integer.parseInt(taskNumberText) == 0) {
+                throw new NumberFormatException();
+            }
             return Integer.parseInt(taskNumberText) - 1;
         } catch (NumberFormatException exception) {
             throw new BaymaxException(
@@ -196,6 +214,7 @@ public final class Parser {
     public static DeadlineDetails parseDeadline(String command) {
         assert command.startsWith("deadline")
                 : "Deadline parsing should receive deadline command text.";
+        validateMarkers(command, "/by");
         DeadlineTextDetails details = extractDeadlineTextDetails(command);
 
         if (details.dueDateText().isEmpty()) {
@@ -219,6 +238,7 @@ public final class Parser {
     public static EventDetails parseEvent(String command) {
         assert command.startsWith("event")
                 : "Event parsing should receive event command text.";
+        validateMarkers(command, "/from", "/to");
         EventTextDetails details = extractEventTextDetails(command);
 
         if (details.description().isEmpty()) {
@@ -233,10 +253,32 @@ public final class Parser {
             throw new EmptyToException();
         }
 
-        return new EventDetails(
-                details.description(),
-                parseDate(details.startDateText()),
-                parseDate(details.endDateText()));
+        LocalDate startDate = parseDate(details.startDateText());
+        LocalDate endDate = parseDate(details.endDateText());
+        if (!startDate.isBefore(endDate)) {
+            throw new BaymaxException(" Sorry, an event must end after its start date.");
+        }
+        return new EventDetails(details.description(), startDate, endDate);
+    }
+
+    /** Checks that date parameters are known, separated, unique, and in order. */
+    private static void validateMarkers(String command, String... markers) {
+        Matcher matcher = Pattern.compile("/\\S*").matcher(command);
+        int previousIndex = -1;
+        while (matcher.find()) {
+            int markerIndex = -1;
+            for (int i = 0; i < markers.length; i++) {
+                if (markers[i].equals(matcher.group())) {
+                    markerIndex = i;
+                }
+            }
+            if (markerIndex <= previousIndex || markerIndex < 0
+                    || matcher.start() == 0 || !Character.isWhitespace(command.charAt(matcher.start() - 1))) {
+                throw new BaymaxException(" Sorry, use each date parameter once, in order: "
+                        + String.join(" ", markers) + ".");
+            }
+            previousIndex = markerIndex;
+        }
     }
 
     /**
@@ -273,7 +315,7 @@ public final class Parser {
         int fromMarkerIndex = eventDetails.indexOf("/from");
 
         if (fromMarkerIndex < 0) {
-            return new EventTextDetails("", "", "");
+            throw new EmptyFromException();
         }
 
         String description =
@@ -281,7 +323,7 @@ public final class Parser {
         int toMarkerIndex = eventDetails.indexOf(
                 "/to", fromMarkerIndex + "/from".length());
         if (toMarkerIndex < 0) {
-            return new EventTextDetails(description, "", "");
+            throw new EmptyToException();
         }
 
         String startDateText = eventDetails.substring(

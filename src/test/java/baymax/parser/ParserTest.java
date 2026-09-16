@@ -49,12 +49,11 @@ public class ParserTest {
     }
 
     /**
-     * Verifies that commands requiring an argument are rejected when the space is missing.
+     * Verifies that bare commands reach their specific missing-argument validation.
      */
     @Test
-    public void getCommandType_commandMissingRequiredSpace_throwsInvalidCommandException() {
-        assertThrows(InvalidCommandException.class, () ->
-                Parser.getCommandType("todo"));
+    public void getCommandType_bareTodo_returnsTodoType() {
+        assertEquals(Parser.CommandType.TODO, Parser.getCommandType("todo"));
     }
 
     /**
@@ -261,8 +260,8 @@ public class ParserTest {
      * Verifies the current error shown when an event command omits the from marker.
      */
     @Test
-    public void parseEvent_missingFromMarker_throwsEmptyDescriptionException() {
-        assertThrows(EmptyDescriptionException.class, () ->
+    public void parseEvent_missingFromMarker_throwsEmptyFromException() {
+        assertThrows(EmptyFromException.class, () ->
                 Parser.parseEvent("event team meeting /to 2019-12-04"));
     }
 
@@ -288,8 +287,8 @@ public class ParserTest {
      * Verifies the current error shown when an event command omits the to marker.
      */
     @Test
-    public void parseEvent_missingToMarker_throwsEmptyFromException() {
-        assertThrows(EmptyFromException.class, () ->
+    public void parseEvent_missingToMarker_throwsEmptyToException() {
+        assertThrows(EmptyToException.class, () ->
                 Parser.parseEvent("event team meeting /from 2019-12-02"));
     }
 
@@ -324,5 +323,52 @@ public class ParserTest {
 
         assertEquals(" Sorry, dates must use the format yyyy-MM-dd.",
                 exception.getMessage());
+    }
+
+    @Test
+    public void parseTaskIndex_invalidNumbers_throwsBaymaxException() {
+        for (String number : new String[]{"", "0", "-1", "-2147483648", "2147483648", "+1", "1 2", "1.5"}) {
+            assertThrows(BaymaxException.class, () ->
+                    Parser.parseTaskIndex("mark " + number, Parser.CommandType.MARK), number);
+        }
+    }
+
+    @Test
+    public void parseDeadline_invalidCalendarDates_throwsBaymaxException() {
+        for (String date : new String[]{"2025-02-29", "2024-02-30", "2024-04-31", "2024-13-01"}) {
+            assertThrows(BaymaxException.class, () -> Parser.parseDeadline("deadline work /by " + date));
+        }
+        assertEquals(LocalDate.of(2024, 2, 29),
+                Parser.parseDeadline("deadline work /by 2024-02-29").dueDate());
+    }
+
+    @Test
+    public void parseEvent_invalidRange_throwsBaymaxException() {
+        for (String end : new String[]{"2024-01-01", "2024-01-02"}) {
+            BaymaxException exception = assertThrows(BaymaxException.class, () ->
+                    Parser.parseEvent("event work /from 2024-01-02 /to " + end));
+            assertEquals(" Sorry, an event must end after its start date.", exception.getMessage());
+        }
+    }
+
+    @Test
+    public void parseDeadline_malformedMarkers_throwsBaymaxException() {
+        for (String details : new String[]{
+            "work /by 2024-01-01 /by 2024-01-02", "work /bye 2024-01-01",
+            "work/by 2024-01-01", "work /by2024-01-01", "work /from 2024-01-01"
+        }) {
+            assertThrows(BaymaxException.class, () -> Parser.parseDeadline("deadline " + details));
+        }
+    }
+
+    @Test
+    public void parseEvent_repeatedOrReversedMarkers_throwsBaymaxException() {
+        for (String details : new String[]{
+            "work /from 2024-01-01 /from 2024-01-02 /to 2024-01-03",
+            "work /from 2024-01-01 /to 2024-01-03 /to 2024-01-04",
+            "work /to 2024-01-03 /from 2024-01-01"
+        }) {
+            assertThrows(BaymaxException.class, () -> Parser.parseEvent("event " + details));
+        }
     }
 }

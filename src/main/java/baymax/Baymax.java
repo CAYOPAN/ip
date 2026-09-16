@@ -59,6 +59,7 @@ public class Baymax {
      */
     public CommandResponse processCommand(String command) {
         try {
+            command = Parser.normalizeCommand(command);
             Parser.CommandType commandType = Parser.getCommandType(command);
 
             return switch (commandType) {
@@ -86,6 +87,11 @@ public class Baymax {
      */
     public void saveTasks() throws IOException {
         storage.save(tasks);
+    }
+
+    /** Returns a warning when stored tasks could not be loaded safely. */
+    public String getLoadWarning() {
+        return storage.getLoadWarning();
     }
 
     private CommandResponse processMark(
@@ -212,6 +218,9 @@ public class Baymax {
         Ui ui = new Ui();
 
         ui.showWelcome();
+        if (!baymax.getLoadWarning().isEmpty()) {
+            ui.showResponse(baymax.getLoadWarning());
+        }
 
         while (ui.hasNextCommand()) {
             String command = ui.readCommand();
@@ -225,13 +234,21 @@ public class Baymax {
                     baymax.saveTasks();
                 } catch (IOException exception) {
                     ui.showSaveError();
+                    ui.showSeparator();
+                    continue;
                 }
                 ui.close();
                 ui.showSeparator();
-                break;
+                return;
             }
 
             ui.showSeparator();
         }
+        try {
+            baymax.saveTasks();
+        } catch (IOException exception) {
+            ui.showSaveError();
+        }
+        ui.close();
     }
 }

@@ -1,6 +1,7 @@
 package baymax.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -20,12 +21,56 @@ import baymax.task.Todo;
  * Tests task persistence without using the application's real data file.
  */
 public class StorageTest {
-
-    /**
-     * Temporary folder used so persistence tests do not touch the real data file.
-     */
+    /** Temporary folder so persistence tests never touch real storage. */
     @TempDir
     public Path temporaryFolder;
+
+    @Test
+    public void load_corruptAndDuplicateRecords_warnsAndProtectsOriginalFile() throws IOException {
+        Path filePath = temporaryFolder.resolve("Baymax.txt");
+        String original = String.join(System.lineSeparator(), "T | 0 | valid", "T | 1 | valid",
+                "E | 0 | backwards | 2024-01-02 | 2024-01-01",
+                "E | 0 | equal | 2024-01-01 | 2024-01-01", "D | 0 | impossible | 2024-02-30");
+        Files.writeString(filePath, original);
+        Storage storage = new Storage(filePath.toString());
+        TaskList tasks = storage.load();
+        assertEquals(1, tasks.size());
+        assertTrue(storage.getLoadWarning().contains("Skipped 4"));
+        assertThrows(IOException.class, () -> storage.save(tasks));
+        assertEquals(original, Files.readString(filePath));
+    }
+
+    @Test
+    public void load_directoryInsteadOfFile_warnsAndBlocksSaving() {
+        Storage storage = new Storage(temporaryFolder.toString());
+        assertEquals(0, storage.load().size());
+        assertTrue(storage.getLoadWarning().contains("cannot read"));
+        assertThrows(IOException.class, () -> storage.save(new TaskList()));
+    }
+
+    @Test
+    public void save_parentIsFile_reportsFailureWithoutChangingParent() throws IOException {
+        Path parent = temporaryFolder.resolve("parent");
+        Files.writeString(parent, "original");
+        Storage storage = new Storage(parent.resolve("Baymax.txt").toString());
+        assertThrows(IOException.class, () -> storage.save(new TaskList()));
+        assertEquals("original", Files.readString(parent));
+    }
+
+    @Test
+    public void save_existingFile_replacesRecordsAndRoundTripsUnicode() throws IOException {
+        Path filePath = temporaryFolder.resolve("Baymax.txt");
+        Files.writeString(filePath, "T | 0 | old task");
+        Storage storage = new Storage(filePath.toString());
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read caf\u00e9 notes"));
+        storage.save(tasks);
+        assertEquals("read caf\u00e9 notes", storage.load().get(0).getDescription());
+        try (var files = Files.list(temporaryFolder)) {
+            assertEquals(1, files.count());
+        }
+    }
+
 
     /**
      * Verifies that saving tasks creates missing folders and writes storage records.

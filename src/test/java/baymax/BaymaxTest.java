@@ -15,11 +15,34 @@ import org.junit.jupiter.api.io.TempDir;
  * Tests the command-processing boundary shared by Baymax's user interfaces.
  */
 public class BaymaxTest {
-    /**
-     * Temporary folder used so command-processing tests do not touch real storage.
-     */
+    /** Temporary folder so command tests never touch real storage. */
     @TempDir
     public Path temporaryFolder;
+
+    @Test
+    public void processCommand_whitespaceAndDuplicates_preservesValidState() {
+        Baymax baymax = new Baymax(temporaryFolder.resolve("Baymax.txt").toString());
+        assertFalse(baymax.processCommand("  todo\t buy   milk  ").isError());
+        assertFalse(baymax.processCommand("\tmark\t1  ").isError());
+        assertTrue(baymax.processCommand("todo buy milk").isError());
+        assertEquals(" Here is your current care plan:" + System.lineSeparator() + " 1.[T][X] buy milk",
+                baymax.processCommand(" list  ").message());
+    }
+
+    @Test
+    public void processCommand_invalidInputs_returnsErrorsAndContinues() {
+        Baymax baymax = new Baymax(temporaryFolder.resolve("Baymax.txt").toString());
+        for (String command : new String[]{null, "", "  ", "todo", "find", "mark", "unmark", "delete",
+            "list extra", "bye extra", "todo unsafe|record", "todo embedded\nline",
+            "deadline bad /by 2024-02-30", "event bad /from 2024-01-02 /to 2024-01-01"
+        }) {
+            Baymax.CommandResponse response = baymax.processCommand(command);
+            assertTrue(response.isError(), command);
+            assertFalse(response.shouldExit(), command);
+        }
+        assertEquals(" Here is your current care plan:", baymax.processCommand("list").message());
+        assertFalse(baymax.processCommand("todo valid").isError());
+    }
 
     /**
      * Verifies that task commands update state and return display-ready responses.

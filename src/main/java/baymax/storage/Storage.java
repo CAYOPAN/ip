@@ -1,13 +1,17 @@
 package baymax.storage;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Scanner;
 
+import baymax.exception.BaymaxException;
 import baymax.task.Deadline;
 import baymax.task.Event;
 import baymax.task.Task;
@@ -36,6 +40,7 @@ public class Storage {
     private static final String EVENT_TYPE = "E";
 
     private final String filePath;
+    private String loadWarning = "";
 
     /**
      * Creates a storage helper that reads from and writes to the given file path.
@@ -57,20 +62,27 @@ public class Storage {
     public void save(TaskList taskList) throws IOException {
         assert taskList != null : "Storage.save should receive a task list.";
 
-        File file = new File(filePath);
-        File parent = file.getParentFile();
-
-        if (parent != null) {
-            parent.mkdirs();
+        if (!loadWarning.isEmpty()) {
+            throw new IOException("Saving is disabled to protect the original data file. "
+                    + "Repair the file and restart Baymax.");
         }
-
-        try (FileWriter fileWriter = new FileWriter(filePath)) {
-            for (int i = 0; i < taskList.size(); i++) {
-                Task task = taskList.get(i);
-                assert task != null : "TaskList should not contain null tasks.";
-                fileWriter.write(task.toStorageString());
-                fileWriter.write(System.lineSeparator());
+        Path target = Path.of(filePath).toAbsolutePath();
+        Files.createDirectories(target.getParent());
+        Path temporary = Files.createTempFile(target.getParent(), "baymax-", ".tmp");
+        try {
+            try (BufferedWriter writer = Files.newBufferedWriter(temporary)) {
+                for (int i = 0; i < taskList.size(); i++) {
+                    writer.write(taskList.get(i).toStorageString());
+                    writer.newLine();
+                }
             }
+            try {
+                Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException exception) {
+                Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temporary);
         }
     }
 
@@ -83,20 +95,40 @@ public class Storage {
      * @return the restored task list, or an empty list if the file is unavailable
      */
     public TaskList load() {
-        ArrayList<Task> taskList = new ArrayList<>();
-
-        try (Scanner scanner = new Scanner(new File(filePath))) {
-            while (scanner.hasNextLine()) {
-                Task task = parseTask(scanner.nextLine());
-                if (task != null) {
+        TaskList taskList = new TaskList();
+        loadWarning = "";
+        int skippedRecords = 0;
+        try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                Task task = parseTask(line);
+                if (task == null) {
+                    skippedRecords++;
+                    continue;
+                }
+                try {
                     taskList.add(task);
+                } catch (BaymaxException exception) {
+                    skippedRecords++;
                 }
             }
+        } catch (NoSuchFileException exception) {
+            return taskList;
         } catch (IOException exception) {
+            loadWarning = "I have some concerns. I cannot read your care plan. "
+                    + "Check the data file and its permissions, then restart. Saving is disabled to protect it.";
             return new TaskList();
         }
+        if (skippedRecords > 0) {
+            loadWarning = "I have some concerns. Skipped " + skippedRecords + " invalid or duplicate record(s). "
+                    + "Repair the data file and restart. Saving is disabled to protect it.";
+        }
+        return taskList;
+    }
 
-        return new TaskList(taskList);
+    /** Returns any load warning, or an empty string when loading succeeded. */
+    public String getLoadWarning() {
+        return loadWarning;
     }
 
     /**
@@ -116,7 +148,7 @@ public class Storage {
         Task task;
         try {
             task = createTask(fields);
-        } catch (DateTimeParseException exception) {
+        } catch (DateTimeParseException | BaymaxException exception) {
             return null;
         }
 

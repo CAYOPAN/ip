@@ -1,5 +1,7 @@
 package baymax.task;
 
+import baymax.exception.BaymaxException;
+
 /**
  * Represents a task in Baymax's task list.
  *
@@ -21,6 +23,9 @@ public class Task {
     public Task(String description) {
         assert description != null && !description.isBlank()
                 : "A task should have a meaningful description.";
+        if (description.indexOf('|') >= 0 || description.chars().anyMatch(Character::isISOControl)) {
+            throw new BaymaxException(" Sorry, task descriptions cannot contain | or control characters.");
+        }
         this.description = description;
         this.isDone = false;
     }
@@ -51,6 +56,14 @@ public class Task {
      */
     public String getDescription() {
         return description;
+    }
+
+    /** Compares task type and details, ignoring completion status. */
+    public boolean hasSameDetails(Task other) {
+        String[] fields = toStorageString().split(" \\| ", 3);
+        String[] otherFields = other.toStorageString().split(" \\| ", 3);
+        return getClass().equals(other.getClass())
+                && fields[fields.length - 1].equals(otherFields[otherFields.length - 1]);
     }
 
     /**

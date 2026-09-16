@@ -59,6 +59,9 @@ public class MainWindow extends AnchorPane {
     public void setBot(Baymax bot) {
         assert bot != null : "MainWindow should receive Baymax before processing input.";
         this.bot = bot;
+        if (!bot.getLoadWarning().isEmpty()) {
+            showBotMessage(bot.getLoadWarning());
+        }
     }
 
     /**
@@ -112,6 +115,7 @@ public class MainWindow extends AnchorPane {
                     "I have some concerns. I cannot save your care plan right now.",
                     warningImage,
                     true));
+            return;
         }
         userInput.setDisable(true);
         sendButton.setDisable(true);
