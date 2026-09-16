@@ -32,20 +32,20 @@ public class BaymaxTest {
         Baymax.CommandResponse added = baymax.processCommand("todo buy milk");
         assertFalse(added.shouldExit());
         assertEquals(
-                " Got it. I've added this task:" + System.lineSeparator()
+                " I have added this task to your care plan:" + System.lineSeparator()
                         + "   [T][ ] buy milk" + System.lineSeparator()
-                        + " Now you have 1 tasks in the list.",
+                        + " You now have 1 task under my care.",
                 added.message());
 
         Baymax.CommandResponse marked = baymax.processCommand("mark 1");
         assertEquals(
-                " Nice! I've marked this task as done:" + System.lineSeparator()
+                " Excellent. This task is complete:" + System.lineSeparator()
                         + "   [T][X] buy milk",
                 marked.message());
 
         Baymax.CommandResponse listed = baymax.processCommand("list");
         assertEquals(
-                " Here are the tasks in your list:" + System.lineSeparator()
+                " Here is your current care plan:" + System.lineSeparator()
                         + " 1.[T][X] buy milk",
                 listed.message());
     }
@@ -61,7 +61,10 @@ public class BaymaxTest {
         Baymax.CommandResponse response = baymax.processCommand("deadline report");
 
         assertFalse(response.shouldExit());
-        assertEquals(" Sorry, a deadline needs a due date.", response.message());
+        assertEquals(
+                " I have some concerns." + System.lineSeparator()
+                        + " Sorry, a deadline needs a due date.",
+                response.message());
     }
 
     /**
@@ -79,7 +82,7 @@ public class BaymaxTest {
         baymax.saveTasks();
 
         assertTrue(response.shouldExit());
-        assertEquals(" Bye. Hope to see you again soon!", response.message());
+        assertEquals(" I am satisfied with my care. Until next time.", response.message());
         assertEquals("T | 0 | buy milk" + System.lineSeparator(),
                 Files.readString(filePath));
     }

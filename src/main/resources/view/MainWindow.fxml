@@ -12,6 +12,7 @@
             minWidth="-Infinity"
             prefHeight="600.0"
             prefWidth="500.0"
+            stylesheets="@../css/main.css"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="baymax.ui.MainWindow">
@@ -34,6 +35,7 @@
         <TextField fx:id="userInput"
                    onAction="#handleUserInput"
                    prefHeight="41.0"
+                   promptText="Tell Baymax what you need..."
                    AnchorPane.bottomAnchor="1.0"
                    AnchorPane.leftAnchor="1.0"
                    AnchorPane.rightAnchor="76.0" />

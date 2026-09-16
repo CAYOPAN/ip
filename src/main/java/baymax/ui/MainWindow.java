@@ -1,6 +1,7 @@
 package baymax.ui;
 
 import java.io.IOException;
+import java.net.URL;
 
 import baymax.Baymax;
 import baymax.Baymax.CommandResponse;
@@ -9,18 +10,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 /**
  * Controls Baymax's JavaFX chat window.
  */
 public class MainWindow extends AnchorPane {
-    private static final int AVATAR_SIZE = 56;
-    private static final double AVATAR_RADIUS = 25.0;
+    private static final String BAYMAX_IMAGE_PATH = "/image/bot.jpg";
+    private static final String USER_IMAGE_PATH = "/image/user.jpg";
 
     @FXML
     private ScrollPane scrollPane;
@@ -36,7 +34,7 @@ public class MainWindow extends AnchorPane {
     private Image baymaxImage;
 
     /**
-     * Initializes scrolling and the generated user and Baymax avatars.
+     * Initializes scrolling and the packaged user and Baymax avatars.
      */
     @FXML
     public void initialize() {
@@ -46,8 +44,8 @@ public class MainWindow extends AnchorPane {
         assert sendButton != null : "MainWindow.fxml should inject sendButton.";
 
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
-        userImage = createAvatar(Color.DODGERBLUE);
-        baymaxImage = createAvatar(Color.CRIMSON);
+        userImage = loadImage(USER_IMAGE_PATH);
+        baymaxImage = loadImage(BAYMAX_IMAGE_PATH);
     }
 
     /**
@@ -105,32 +103,18 @@ public class MainWindow extends AnchorPane {
             bot.saveTasks();
         } catch (IOException exception) {
             dialogContainer.getChildren().add(DialogBox.getBaymaxDialog(
-                    "Can not save tasks list. Previous tasks list can not be retrieve.",
+                    "I have some concerns. I cannot save your care plan right now.",
                     baymaxImage));
         }
         userInput.setDisable(true);
         sendButton.setDisable(true);
     }
 
-    private Image createAvatar(Color color) {
-        assert color != null : "Avatar creation should receive a color.";
-
-        WritableImage avatar = new WritableImage(AVATAR_SIZE, AVATAR_SIZE);
-        PixelWriter pixelWriter = avatar.getPixelWriter();
-        double center = (AVATAR_SIZE - 1) / 2.0;
-
-        for (int y = 0; y < AVATAR_SIZE; y++) {
-            for (int x = 0; x < AVATAR_SIZE; x++) {
-                double distanceFromCenter = Math.hypot(x - center, y - center);
-                pixelWriter.setColor(
-                        x,
-                        y,
-                        distanceFromCenter <= AVATAR_RADIUS
-                                ? color
-                                : Color.TRANSPARENT);
-            }
+    private Image loadImage(String resourcePath) {
+        URL imageUrl = MainWindow.class.getResource(resourcePath);
+        if (imageUrl == null) {
+            throw new IllegalStateException("Unable to load avatar image: " + resourcePath);
         }
-
-        return avatar;
+        return new Image(imageUrl.toExternalForm());
     }
 }

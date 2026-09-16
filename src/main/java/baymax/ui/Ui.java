@@ -48,8 +48,9 @@ public class Ui {
             B   B a   a    y    m     m  a   a   x x
             B   B a   a    y    m     m  a   a  x   x
             BBBB  a   a    y    m     m  a   a  x   x
-            Hello! I'm Baymax. Your personal task companion.
-            What can I do for you?
+            Hello. I am Baymax, your personal task companion.
+            I am here to keep your tasks healthy and organized.
+            How may I assist you?
             ____________________________________________________________
             """);
     }
@@ -75,6 +76,6 @@ public class Ui {
      */
     public void showSaveError() {
         System.out.println(
-                "Can not save tasks list. Previous tasks list can not be retrieve.");
+                "I have some concerns. I cannot save your care plan right now.");
     }
 }
