@@ -56,6 +56,10 @@ public class DialogBox extends HBox {
         dialog.getStyleClass().add("reply-label");
     }
 
+    private void showAsError() {
+        dialog.getStyleClass().add("error-label");
+    }
+
     /**
      * Creates a right-aligned dialog for user input.
      *
@@ -72,11 +76,15 @@ public class DialogBox extends HBox {
      *
      * @param text Baymax's response
      * @param image Baymax's avatar
+     * @param isError whether the response should use error highlighting
      * @return a dialog box for the Baymax response
      */
-    public static DialogBox getBaymaxDialog(String text, Image image) {
+    public static DialogBox getBaymaxDialog(String text, Image image, boolean isError) {
         DialogBox dialogBox = new DialogBox(text, image);
         dialogBox.flip();
+        if (isError) {
+            dialogBox.showAsError();
+        }
         return dialogBox;
     }
 }

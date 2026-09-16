@@ -288,7 +288,7 @@ ____________________________________________________________
 
 ## Latest test session
 
-- Recorded: 2026-09-16T19:29:06+08:00
+- Recorded: 2026-09-16T20:02:37+08:00
 - Result: PASS (6 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text

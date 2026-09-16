@@ -31,6 +31,7 @@ public class BaymaxTest {
 
         Baymax.CommandResponse added = baymax.processCommand("todo buy milk");
         assertFalse(added.shouldExit());
+        assertFalse(added.isError());
         assertEquals(
                 " I have added this task to your care plan:" + System.lineSeparator()
                         + "   [T][ ] buy milk" + System.lineSeparator()
@@ -61,6 +62,7 @@ public class BaymaxTest {
         Baymax.CommandResponse response = baymax.processCommand("deadline report");
 
         assertFalse(response.shouldExit());
+        assertTrue(response.isError());
         assertEquals(
                 " I have some concerns." + System.lineSeparator()
                         + " Sorry, a deadline needs a due date.",
@@ -82,6 +84,7 @@ public class BaymaxTest {
         baymax.saveTasks();
 
         assertTrue(response.shouldExit());
+        assertFalse(response.isError());
         assertEquals(" I am satisfied with my care. Until next time.", response.message());
         assertEquals("T | 0 | buy milk" + System.lineSeparator(),
                 Files.readString(filePath));
