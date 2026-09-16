@@ -89,7 +89,7 @@ public class Storage {
     /**
      * Loads tasks from the configured data file.
      *
-     * <p>Malformed records are skipped so that one bad line does not prevent
+     * <p>Blank lines are ignored. Malformed records are skipped so that one bad line does not prevent
      * the rest of the task list from loading.</p>
      *
      * @return the restored task list, or an empty list if the file is unavailable
@@ -101,6 +101,9 @@ public class Storage {
         try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                if (line.isBlank()) {
+                    continue;
+                }
                 Task task = parseTask(line);
                 if (task == null) {
                     skippedRecords++;

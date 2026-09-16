@@ -26,6 +26,51 @@ public class StorageTest {
     public Path temporaryFolder;
 
     @Test
+    public void load_emptyOrWhitespaceOnlyFile_allowsSavingWithoutWarning() throws IOException {
+        Path filePath = temporaryFolder.resolve("Baymax.txt");
+        for (String contents : new String[]{"", "\r\n", " \t\r\n\n  \n"}) {
+            Files.writeString(filePath, contents);
+            Storage storage = new Storage(filePath.toString());
+            TaskList tasks = storage.load();
+
+            assertEquals(0, tasks.size());
+            assertEquals("", storage.getLoadWarning());
+            tasks.add(new Todo("new task"));
+            storage.save(tasks);
+            assertEquals("new task", storage.load().get(0).getDescription());
+        }
+    }
+
+    @Test
+    public void load_blankLinesBetweenRecords_preservesTasksWithoutWarning() throws IOException {
+        Path filePath = temporaryFolder.resolve("Baymax.txt");
+        Files.writeString(filePath, "\nT | 0 | first\n \t\nT | 1 | second\n\n");
+        Storage storage = new Storage(filePath.toString());
+
+        TaskList tasks = storage.load();
+
+        assertEquals(2, tasks.size());
+        assertEquals("[T][ ] first", tasks.get(0).toString());
+        assertEquals("[T][X] second", tasks.get(1).toString());
+        assertEquals("", storage.getLoadWarning());
+        storage.save(tasks);
+    }
+
+    @Test
+    public void load_blankLinesWithMalformedRecord_stillProtectsOriginalFile() throws IOException {
+        Path filePath = temporaryFolder.resolve("Baymax.txt");
+        String contents = "\n \t\ninvalid record\n\n";
+        Files.writeString(filePath, contents);
+        Storage storage = new Storage(filePath.toString());
+
+        TaskList tasks = storage.load();
+
+        assertTrue(storage.getLoadWarning().contains("Skipped 1"));
+        assertThrows(IOException.class, () -> storage.save(tasks));
+        assertEquals(contents, Files.readString(filePath));
+    }
+
+    @Test
     public void load_corruptAndDuplicateRecords_warnsAndProtectsOriginalFile() throws IOException {
         Path filePath = temporaryFolder.resolve("Baymax.txt");
         String original = String.join(System.lineSeparator(), "T | 0 | valid", "T | 1 | valid",

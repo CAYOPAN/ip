@@ -359,10 +359,43 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+### TC-008: Load whitespace-only storage without a warning
+
+- Aim: Verify a whitespace-only data file starts normally and permits adding and saving a task without a storage warning.
+- Command: `python test/run_gradle_ui_test.py --blank-storage`
+- Inputs:
+```text
+todo new task
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] new task
+ You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
 ## Latest test session
 
-- Recorded: 2026-09-16T20:29:12+08:00
-- Result: PASS (7 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
+- Recorded: 2026-09-16T20:44:25+08:00
+- Result: PASS (8 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text
 === TC-001: Exit immediately ===
@@ -682,6 +715,36 @@ ____________________________________________________________
 ____________________________________________________________
  Here is your current care plan:
  1.[T][ ] buy milk
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-008: Load whitespace-only storage without a warning ===
+Command: python test/run_gradle_ui_test.py --blank-storage
+Console input:
+todo new task
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] new task
+ You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________
  I am satisfied with my care. Until next time.
