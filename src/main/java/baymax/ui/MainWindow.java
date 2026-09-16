@@ -19,6 +19,7 @@ import javafx.scene.layout.VBox;
 public class MainWindow extends AnchorPane {
     private static final String BAYMAX_IMAGE_PATH = "/image/bot.jpg";
     private static final String USER_IMAGE_PATH = "/image/user.jpg";
+    private static final String WARNING_IMAGE_PATH = "/image/warning.jpg";
 
     @FXML
     private ScrollPane scrollPane;
@@ -32,6 +33,7 @@ public class MainWindow extends AnchorPane {
     private Baymax bot;
     private Image userImage;
     private Image baymaxImage;
+    private Image warningImage;
 
     /**
      * Initializes scrolling and the packaged user and Baymax avatars.
@@ -46,6 +48,7 @@ public class MainWindow extends AnchorPane {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
         userImage = loadImage(USER_IMAGE_PATH);
         baymaxImage = loadImage(BAYMAX_IMAGE_PATH);
+        warningImage = loadImage(WARNING_IMAGE_PATH);
     }
 
     /**
@@ -68,7 +71,7 @@ public class MainWindow extends AnchorPane {
         assert baymaxImage != null : "Baymax avatar should be initialized before display.";
 
         dialogContainer.getChildren().add(
-                DialogBox.getBaymaxDialog(message, baymaxImage));
+                DialogBox.getBaymaxDialog(message, baymaxImage, false));
     }
 
     /**
@@ -79,6 +82,7 @@ public class MainWindow extends AnchorPane {
         assert bot != null : "Baymax should be set before handling user input.";
         assert userImage != null : "User avatar should be initialized before display.";
         assert baymaxImage != null : "Baymax avatar should be initialized before display.";
+        assert warningImage != null : "Warning image should be initialized before display.";
 
         String input = userInput.getText().trim();
         if (input.isEmpty()) {
@@ -89,8 +93,10 @@ public class MainWindow extends AnchorPane {
                 DialogBox.getUserDialog(input, userImage));
 
         CommandResponse response = bot.processCommand(input);
+        Image responseImage = response.isError() ? warningImage : baymaxImage;
         dialogContainer.getChildren().add(
-                DialogBox.getBaymaxDialog(response.message(), baymaxImage));
+                DialogBox.getBaymaxDialog(
+                        response.message(), responseImage, response.isError()));
         userInput.clear();
 
         if (response.shouldExit()) {
@@ -104,7 +110,8 @@ public class MainWindow extends AnchorPane {
         } catch (IOException exception) {
             dialogContainer.getChildren().add(DialogBox.getBaymaxDialog(
                     "I have some concerns. I cannot save your care plan right now.",
-                    baymaxImage));
+                    warningImage,
+                    true));
         }
         userInput.setDisable(true);
         sendButton.setDisable(true);

@@ -21,6 +21,14 @@
     -fx-text-fill: #202124;
 }
 
+.error-label {
+    -fx-background-color: #fff1f2;
+    -fx-border-color: #d71920;
+    -fx-border-width: 1px 1px 1px 5px;
+    -fx-effect: dropshadow(gaussian, rgba(215, 25, 32, 0.2), 10, 0.2, 0, 2);
+    -fx-text-fill: #991b1b;
+}
+
 #displayPicture {
     -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.2), 8, 0.25, 0, 2);
 }

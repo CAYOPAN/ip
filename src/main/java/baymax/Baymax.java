@@ -24,12 +24,13 @@ public class Baymax {
     private final TaskList tasks;
 
     /**
-     * Describes the text response to a command and whether the interface should exit.
+     * Describes the text response to a command and how an interface should present it.
      *
      * @param message the response text to display
      * @param shouldExit whether the command requested interface termination
+     * @param isError whether the response describes a user-facing error
      */
-    public record CommandResponse(String message, boolean shouldExit) {
+    public record CommandResponse(String message, boolean shouldExit, boolean isError) {
     }
 
     /**
@@ -62,9 +63,9 @@ public class Baymax {
 
             return switch (commandType) {
                 case BYE -> new CommandResponse(
-                        " I am satisfied with my care. Until next time.", true);
+                        " I am satisfied with my care. Until next time.", true, false);
                 case LIST -> new CommandResponse(formatTaskList(
-                        " Here is your current care plan:", tasks), false);
+                        " Here is your current care plan:", tasks), false, false);
                 case MARK -> processMark(command, commandType);
                 case UNMARK -> processUnmark(command, commandType);
                 case DELETE -> processDelete(command, commandType);
@@ -95,7 +96,7 @@ public class Baymax {
         if (isValidTaskIndex(taskIndex)) {
             tasks.get(taskIndex).markAsDone();
             return new CommandResponse(formatTaskChange(
-                    " Excellent. This task is complete:", tasks.get(taskIndex)), false);
+                    " Excellent. This task is complete:", tasks.get(taskIndex)), false, false);
         }
         return createConcernResponse(" Sorry, that task is not in your care plan.");
     }
@@ -108,7 +109,7 @@ public class Baymax {
         if (isValidTaskIndex(taskIndex)) {
             tasks.get(taskIndex).markAsUndone();
             return new CommandResponse(formatTaskChange(
-                    " Understood. This task still requires care:", tasks.get(taskIndex)), false);
+                    " Understood. This task still requires care:", tasks.get(taskIndex)), false, false);
         }
         return createConcernResponse(" Sorry, that task is not in your care plan.");
     }
@@ -120,7 +121,7 @@ public class Baymax {
         int taskIndex = Parser.parseTaskIndex(command, commandType);
         if (isValidTaskIndex(taskIndex)) {
             Task removedTask = tasks.remove(taskIndex);
-            return new CommandResponse(formatDeletedTask(removedTask), false);
+            return new CommandResponse(formatDeletedTask(removedTask), false, false);
         }
         return createConcernResponse(" Sorry, that task is not in your care plan.");
     }
@@ -130,21 +131,21 @@ public class Baymax {
         assert keyword != null && !keyword.isBlank()
                 : "Parser should return a non-blank find keyword.";
         return new CommandResponse(formatTaskList(
-                " I found these tasks in your care plan:", tasks.find(keyword)), false);
+                " I found these tasks in your care plan:", tasks.find(keyword)), false, false);
     }
 
     private CommandResponse processTodo(String command) {
         String description = Parser.parseTodoDescription(command);
         Task task = new Todo(description);
         tasks.add(task);
-        return new CommandResponse(formatAddedTask(task), false);
+        return new CommandResponse(formatAddedTask(task), false, false);
     }
 
     private CommandResponse processDeadline(String command) {
         Parser.DeadlineDetails deadline = Parser.parseDeadline(command);
         Task task = new Deadline(deadline.description(), deadline.dueDate());
         tasks.add(task);
-        return new CommandResponse(formatAddedTask(task), false);
+        return new CommandResponse(formatAddedTask(task), false, false);
     }
 
     private CommandResponse processEvent(String command) {
@@ -152,7 +153,7 @@ public class Baymax {
         Task task = new Event(
                 event.description(), event.startDate(), event.endDate());
         tasks.add(task);
-        return new CommandResponse(formatAddedTask(task), false);
+        return new CommandResponse(formatAddedTask(task), false, false);
     }
 
     private boolean isValidTaskIndex(int taskIndex) {
@@ -164,7 +165,8 @@ public class Baymax {
                 : "A concern response should contain an explanation.";
         return new CommandResponse(
                 " I have some concerns." + System.lineSeparator() + message,
-                false);
+                false,
+                true);
     }
 
     private String formatTaskList(String heading, TaskList taskList) {
