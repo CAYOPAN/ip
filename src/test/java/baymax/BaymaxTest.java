@@ -165,4 +165,31 @@ public class BaymaxTest {
         assertEquals("T | 0 | buy milk" + System.lineSeparator(),
                 Files.readString(filePath));
     }
+    @Test
+    public void processCommand_outOfRangeIndices_preservesState() {
+        Baymax baymax = new Baymax(temporaryFolder.resolve("indices.txt").toString());
+        baymax.processCommand("todo work");
+        String before = baymax.processCommand("list").message();
+        for (String command : new String[]{"mark 2", "unmark 2", "delete 2", "delete 2147483647"}) {
+            Baymax.CommandResponse response = baymax.processCommand(command);
+            assertTrue(response.isError(), command);
+            assertFalse(response.shouldExit(), command);
+            assertTrue(response.message().contains("not in your care plan"), command);
+            assertEquals(before, baymax.processCommand("list").message());
+        }
+    }
+
+    @Test
+    public void processCommand_deleteLastTask_reportsZeroAndPersistsEmptyList() throws IOException {
+        Path file = temporaryFolder.resolve("delete.txt");
+        Baymax baymax = new Baymax(file.toString());
+        baymax.processCommand("todo work");
+        assertEquals(" This task is no longer under my care:" + System.lineSeparator()
+                + "   [T][ ] work" + System.lineSeparator()
+                + " You now have 0 tasks under my care.", baymax.processCommand("delete 1").message());
+        assertEquals(" I found these tasks in your care plan:", baymax.processCommand("find work").message());
+        baymax.saveTasks();
+        assertEquals("", Files.readString(file));
+        assertEquals(" Here is your current care plan:", new Baymax(file.toString()).processCommand("list").message());
+    }
 }
