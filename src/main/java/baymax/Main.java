@@ -1,10 +1,10 @@
 package baymax;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import baymax.ui.CloseGuard;
 import baymax.ui.MainWindow;
+import baymax.ui.UiAssets;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -32,11 +32,12 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         baymax = new Baymax();
-        loadApplicationFont();
+        Font applicationFont = UiAssets.loadFont(APPLICATION_FONT_PATH);
 
         FXMLLoader fxmlLoader =
                 new FXMLLoader(Main.class.getResource("/view/MainWindow.fxml"));
         AnchorPane root = fxmlLoader.load();
+        root.setStyle("-fx-font-family: '" + applicationFont.getFamily() + "';");
         MainWindow mainWindow = fxmlLoader.getController();
         mainWindow.setBot(baymax);
         mainWindow.showBotMessage(
@@ -55,14 +56,6 @@ public class Main extends Application {
             }
         });
         stage.show();
-    }
-
-    private static void loadApplicationFont() throws IOException {
-        try (InputStream fontStream = Main.class.getResourceAsStream(APPLICATION_FONT_PATH)) {
-            if (fontStream == null || Font.loadFont(fontStream, 14.0) == null) {
-                throw new IOException("Unable to load application font: " + APPLICATION_FONT_PATH);
-            }
-        }
     }
 
     /** Presents recovery choices before allowing a window with unsaved tasks to close. */

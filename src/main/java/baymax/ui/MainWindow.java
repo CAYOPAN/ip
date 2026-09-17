@@ -1,7 +1,6 @@
 package baymax.ui;
 
 import java.io.IOException;
-import java.net.URL;
 
 import baymax.Baymax;
 import baymax.Baymax.CommandResponse;
@@ -46,9 +45,9 @@ public class MainWindow extends AnchorPane {
         assert sendButton != null : "MainWindow.fxml should inject sendButton.";
 
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
-        userImage = loadImage(USER_IMAGE_PATH);
-        baymaxImage = loadImage(BAYMAX_IMAGE_PATH);
-        warningImage = loadImage(WARNING_IMAGE_PATH);
+        userImage = UiAssets.loadAvatar(USER_IMAGE_PATH);
+        baymaxImage = UiAssets.loadAvatar(BAYMAX_IMAGE_PATH);
+        warningImage = UiAssets.loadAvatar(WARNING_IMAGE_PATH);
     }
 
     /**
@@ -121,11 +120,4 @@ public class MainWindow extends AnchorPane {
         sendButton.setDisable(true);
     }
 
-    private Image loadImage(String resourcePath) {
-        URL imageUrl = MainWindow.class.getResource(resourcePath);
-        if (imageUrl == null) {
-            throw new IllegalStateException("Unable to load avatar image: " + resourcePath);
-        }
-        return new Image(imageUrl.toExternalForm());
-    }
 }
