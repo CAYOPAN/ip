@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'checkstyle'
+    id 'jacoco'
     id 'application'
     id 'com.gradleup.shadow' version '9.5.1'
 }
@@ -89,4 +90,24 @@ tasks.register('runTextUi', JavaExec) {
     mainClass.set('baymax.Baymax')
     standardInput = System.in
     jvmArgs '-ea'
+}
+
+jacoco {
+    toolVersion = '0.8.14'
+}
+
+jacocoTestReport {
+    dependsOn test
+    executionData fileTree(layout.buildDirectory.dir('jacoco')) { include '*.exec' }
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+// Child console JVMs write separate coverage files; discard stale results before each test run.
+test.doFirst {
+    systemProperty 'baymax.coverage.agent', jacoco.asJvmArg
+    systemProperty 'baymax.coverage.directory', layout.buildDirectory.dir('jacoco').get().asFile.absolutePath
+    delete fileTree(layout.buildDirectory.dir('jacoco')) { include '*-console-*.exec' }
 }
