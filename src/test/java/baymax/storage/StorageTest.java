@@ -1,6 +1,8 @@
 package baymax.storage;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -345,5 +347,52 @@ public class StorageTest {
 
         assertEquals(1, tasks.size());
         assertEquals("[T][ ] valid todo", tasks.get(0).toString());
+    }
+    @Test
+    public void load_invalidUtf8_blocksSavingWithoutReplacingBytes() throws IOException {
+        Path file = temporaryFolder.resolve("invalid-utf8.txt");
+        byte[] original = new byte[]{(byte) 0xc3, (byte) 0x28};
+        Files.write(file, original);
+        Storage storage = new Storage(file.toString());
+        assertEquals(0, storage.load().size());
+        assertTrue(storage.isReadOnly());
+        assertTrue(storage.getLoadWarning().contains("cannot read"));
+        assertThrows(IOException.class, () -> storage.save(new TaskList()));
+        assertArrayEquals(original, Files.readAllBytes(file));
+    }
+
+    @Test
+    public void load_repairedFile_clearsWarningAndRefreshesSnapshot() throws IOException {
+        Path file = temporaryFolder.resolve("repaired.txt");
+        Files.writeString(file, "broken\n");
+        Storage storage = new Storage(file.toString());
+        storage.load();
+        assertTrue(storage.isReadOnly());
+        Files.writeString(file, "T | 1 | repaired\n");
+        TaskList tasks = storage.load();
+        assertFalse(storage.isReadOnly());
+        assertEquals("", storage.getLoadWarning());
+        assertEquals("[T][X] repaired", tasks.get(0).toString());
+        tasks.remove(0);
+        storage.save(tasks);
+        assertEquals("", Files.readString(file));
+    }
+
+    @Test
+    public void load_invalidFieldCountsAndEventRanges_skipsOnlyBadRecords() throws IOException {
+        Path file = temporaryFolder.resolve("fields.txt");
+        Files.writeString(file, String.join("\n",
+                "T | 0 | extra | field",
+                "D | 0 | missing date",
+                "E | 0 | extra | 2024-01-01 | 2024-01-02 | field",
+                "E | 0 | reversed | 2024-01-02 | 2024-01-01",
+                "E | 0 | equal | 2024-01-01 | 2024-01-01",
+                "T | 0 | embedded\u0000control",
+                "T|1|valid"));
+        Storage storage = new Storage(file.toString());
+        TaskList tasks = storage.load();
+        assertEquals(1, tasks.size());
+        assertEquals("[T][X] valid", tasks.get(0).toString());
+        assertTrue(storage.getLoadWarning().contains("Skipped 6 invalid"));
     }
 }
