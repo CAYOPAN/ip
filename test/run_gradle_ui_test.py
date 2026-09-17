@@ -18,6 +18,7 @@ def main() -> int:
     storage_options = parser.add_mutually_exclusive_group()
     storage_options.add_argument("--blank-storage", action="store_true")
     storage_options.add_argument("--corrupt-storage", action="store_true")
+    storage_options.add_argument("--bom-storage", action="store_true")
     arguments = parser.parse_args()
     wrapper_name = "gradlew.bat" if os.name == "nt" else "gradlew"
 
@@ -43,6 +44,10 @@ def main() -> int:
             data_file = Path(work_dir) / "data" / "Baymax.txt"
             data_file.parent.mkdir()
             data_file.write_bytes(b"T | 0 | existing\ninvalid record\n")
+        if arguments.bom_storage:
+            data_file = Path(work_dir) / "data" / "Baymax.txt"
+            data_file.parent.mkdir()
+            data_file.write_bytes(b"\xef\xbb\xbfT | 0 | existing\n")
         app_result = subprocess.run(
             ["java", "-ea", "-cp", str(shadow_jar), "baymax.Baymax"],
             cwd=work_dir,

@@ -59,6 +59,7 @@ Tasks with the same type, description, and dates are duplicates, even if one is
 completed. Description comparisons are case-sensitive; command whitespace is
 normalized before comparison.
 
+UTF-8 files with an optional BOM at the very beginning can be loaded normally.
 Baymax creates a missing data file and its parent folders when saving. It writes
 UTF-8 data to a temporary file before replacing the previous file, using an atomic
 replacement when the filesystem supports it. The console also saves when input

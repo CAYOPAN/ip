@@ -29,6 +29,65 @@ public class StorageTest {
     public Path temporaryFolder;
 
     @Test
+    public void load_initialBom_restoresTasksAndAllowsRepeatedSaves() throws IOException {
+        Path filePath = temporaryFolder.resolve("bom.txt");
+        Files.writeString(filePath, "\uFEFFT | 0 | valid task\n");
+        Storage storage = new Storage(filePath.toString());
+        TaskList tasks = storage.load();
+        assertEquals(1, tasks.size());
+        assertEquals("[T][ ] valid task", tasks.get(0).toString());
+        assertEquals("", storage.getLoadWarning());
+        tasks.add(new Todo("new task"));
+        storage.save(tasks);
+        storage.save(tasks);
+        assertEquals(2, new Storage(filePath.toString()).load().size());
+        assertTrue(Files.readString(filePath).startsWith("T | 0 | valid task"));
+    }
+
+    @Test
+    public void load_bomWithOnlyBlankLines_allowsSaving() throws IOException {
+        Path filePath = temporaryFolder.resolve("blank-bom.txt");
+        for (String content : new String[] {"\uFEFF", "\uFEFF\r\n \t\n"}) {
+            Files.writeString(filePath, content);
+            Storage storage = new Storage(filePath.toString());
+            TaskList tasks = storage.load();
+            assertEquals(0, tasks.size());
+            assertEquals("", storage.getLoadWarning());
+            tasks.add(new Todo("new task"));
+            storage.save(tasks);
+            assertEquals(1, new Storage(filePath.toString()).load().size());
+        }
+    }
+
+    @Test
+    public void load_misplacedOrRepeatedBom_preservesInvalidRecords() throws IOException {
+        Path filePath = temporaryFolder.resolve("invalid-bom.txt");
+        for (String content : new String[] {"\n\uFEFFT | 0 | task", "\uFEFF\uFEFFT | 0 | task",
+            "\uFEFFinvalid record"}) {
+            Files.writeString(filePath, content);
+            Storage storage = new Storage(filePath.toString());
+            TaskList tasks = storage.load();
+            assertEquals(0, tasks.size());
+            assertTrue(storage.getLoadWarning().contains("Skipped 1"));
+            assertThrows(IOException.class, () -> storage.save(tasks));
+            assertEquals(content, Files.readString(filePath));
+        }
+    }
+
+    @Test
+    public void load_bomInsideDescription_preservesText() throws IOException {
+        Path filePath = temporaryFolder.resolve("description-bom.txt");
+        String record = "T | 0 | caf\u00E9\uFEFF task";
+        Files.writeString(filePath, "\uFEFF" + record);
+        Storage storage = new Storage(filePath.toString());
+        TaskList tasks = storage.load();
+        assertEquals(record, tasks.get(0).toStorageString());
+        assertEquals("", storage.getLoadWarning());
+        storage.save(tasks);
+        assertEquals(record + System.lineSeparator(), Files.readString(filePath));
+    }
+
+    @Test
     public void load_unsupportedYears_skipsRecordsAndProtectsFile() throws IOException {
         Path filePath = temporaryFolder.resolve("years.txt");
         String original = String.join("\n", "D | 0 | zero | 0000-01-01",

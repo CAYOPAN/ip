@@ -151,6 +151,11 @@ public class Storage {
         }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 new ByteArrayInputStream(savedContent), StandardCharsets.UTF_8.newDecoder()))) {
+            // An optional encoding marker is meaningful only at the start of the file.
+            reader.mark(1);
+            if (reader.read() != '\uFEFF') {
+                reader.reset();
+            }
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.isBlank()) {

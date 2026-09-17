@@ -509,10 +509,42 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+### TC-012: Load a UTF-8 file with an initial BOM
+
+- Aim: Verify the encoding marker does not reject the first task or disable saving.
+- Command: `python test/run_gradle_ui_test.py --bom-storage`
+- Inputs:
+```text
+list
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] existing
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
 ## Latest test session
 
-- Recorded: 2026-09-17T11:09:14+08:00
-- Result: PASS (11 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
+- Recorded: 2026-09-17T11:14:11+08:00
+- Result: PASS (12 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text
 === TC-001: Exit immediately ===
@@ -970,6 +1002,35 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  Here is your current care plan:
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-012: Load a UTF-8 file with an initial BOM ===
+Command: python test/run_gradle_ui_test.py --bom-storage
+Console input:
+list
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] existing
 ____________________________________________________________
 ____________________________________________________________
  I am satisfied with my care. Until next time.
