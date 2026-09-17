@@ -47,7 +47,9 @@ Commands accept leading/trailing spaces, repeated spaces, and tabs. Task numbers
 must be positive integers referring to an existing task. Commands with missing
 arguments report an error and leave the task list unchanged.
 
-Dates use `yyyy-MM-dd` and must exist on the calendar. Events must end strictly
+Dates use `yyyy-MM-dd`, must exist on the calendar, and use years `0001` through
+`9999`. Year zero, negative years, and larger years are rejected in commands and
+stored records. Events must end strictly
 after their start date; same-day events are rejected. Supply `/by` once for a
 deadline, or `/from` followed by `/to` once each for an event. Slashes in these
 commands are reserved for date parameters. Descriptions cannot contain `|` or

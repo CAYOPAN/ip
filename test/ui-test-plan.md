@@ -463,10 +463,56 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+### TC-011: Reject unsupported date years
+
+- Aim: Verify year zero, negative years, and years beyond 9999 are rejected without adding tasks.
+- Command: `python test/run_gradle_ui_test.py`
+- Inputs:
+```text
+deadline zero /by 0000-01-01
+deadline negative /by -0001-01-01
+event distant /from 2026-01-01 /to +10000-01-01
+list
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
 ## Latest test session
 
-- Recorded: 2026-09-17T11:07:01+08:00
-- Result: PASS (10 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
+- Recorded: 2026-09-17T11:09:14+08:00
+- Result: PASS (11 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text
 === TC-001: Exit immediately ===
@@ -881,6 +927,49 @@ ____________________________________________________________
 ____________________________________________________________
  Here is your current care plan:
  1.[T][ ] existing
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-011: Reject unsupported date years ===
+Command: python test/run_gradle_ui_test.py
+Console input:
+deadline zero /by 0000-01-01
+deadline negative /by -0001-01-01
+event distant /from 2026-01-01 /to +10000-01-01
+list
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
 ____________________________________________________________
 ____________________________________________________________
  I am satisfied with my care. Until next time.

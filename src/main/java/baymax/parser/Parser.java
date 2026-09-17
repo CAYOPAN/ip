@@ -11,6 +11,7 @@ import baymax.exception.EmptyDescriptionException;
 import baymax.exception.EmptyFromException;
 import baymax.exception.EmptyToException;
 import baymax.exception.InvalidCommandException;
+import baymax.task.TaskDate;
 
 /**
  * Identifies the type of a user command.
@@ -348,7 +349,7 @@ public final class Parser {
         assert dateText != null && !dateText.isBlank()
                 : "Date parsing should receive non-empty date text.";
         try {
-            return LocalDate.parse(dateText);
+            return TaskDate.validate(LocalDate.parse(dateText));
         } catch (DateTimeParseException exception) {
             throw new BaymaxException(
                     " Sorry, dates must use the format yyyy-MM-dd.");

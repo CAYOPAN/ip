@@ -29,6 +29,24 @@ public class StorageTest {
     public Path temporaryFolder;
 
     @Test
+    public void load_unsupportedYears_skipsRecordsAndProtectsFile() throws IOException {
+        Path filePath = temporaryFolder.resolve("years.txt");
+        String original = String.join("\n", "D | 0 | zero | 0000-01-01",
+                "D | 0 | negative | -0001-01-01", "D | 0 | large | +10000-01-01",
+                "E | 0 | early | 0000-01-01 | 2026-01-01",
+                "E | 0 | late | 2026-01-01 | +10000-01-01",
+                "D | 0 | valid | 0001-01-01");
+        Files.writeString(filePath, original);
+        Storage storage = new Storage(filePath.toString());
+        TaskList tasks = storage.load();
+        assertEquals(1, tasks.size());
+        assertEquals("[D][ ] valid (by: Jan 01 0001)", tasks.get(0).toString());
+        assertTrue(storage.getLoadWarning().contains("Skipped 5"));
+        assertThrows(IOException.class, () -> storage.save(tasks));
+        assertEquals(original, Files.readString(filePath));
+    }
+
+    @Test
     public void save_staleInstance_preservesOtherInstancesTasks() throws IOException {
         Path filePath = temporaryFolder.resolve("shared.txt");
         Files.writeString(filePath, "T | 0 | original\n");

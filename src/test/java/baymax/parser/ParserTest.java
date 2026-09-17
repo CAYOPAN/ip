@@ -20,6 +20,33 @@ import baymax.exception.InvalidCommandException;
  */
 public class ParserTest {
 
+    @Test
+    public void parseDate_unsupportedYears_rejectsAllDateFields() {
+        for (String date : new String[]{"0000-01-01", "-0001-01-01", "+10000-01-01"}) {
+            for (String command : new String[]{"deadline work /by " + date,
+                "event work /from " + date + " /to 2026-01-01",
+                "event work /from 2026-01-01 /to " + date
+            }) {
+                BaymaxException exception = assertThrows(BaymaxException.class, () -> {
+                    if (command.startsWith("deadline")) {
+                        Parser.parseDeadline(command);
+                    } else {
+                        Parser.parseEvent(command);
+                    }
+                });
+                assertEquals(" Sorry, date years must be between 0001 and 9999.", exception.getMessage());
+            }
+        }
+    }
+
+    @Test
+    public void parseDate_supportedBoundaryYears_preservesDates() {
+        assertEquals(LocalDate.of(1, 1, 1), Parser.parseDeadline("deadline first /by 0001-01-01").dueDate());
+        Parser.EventDetails event = Parser.parseEvent("event range /from 0001-01-01 /to 9999-12-31");
+        assertEquals(LocalDate.of(1, 1, 1), event.startDate());
+        assertEquals(LocalDate.of(9999, 12, 31), event.endDate());
+    }
+
     /**
      * Verifies that each supported command text maps to the correct command type.
      */

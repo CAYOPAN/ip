@@ -28,6 +28,8 @@ public class Event extends Task {
         super(description);
         assert startDate != null : "Event start dates should be parsed before construction.";
         assert endDate != null : "Event end dates should be parsed before construction.";
+        TaskDate.validate(startDate);
+        TaskDate.validate(endDate);
         if (!startDate.isBefore(endDate)) {
             throw new BaymaxException(" Sorry, an event must end after its start date.");
         }
