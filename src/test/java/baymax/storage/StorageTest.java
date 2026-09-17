@@ -5,8 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
@@ -24,6 +27,64 @@ public class StorageTest {
     /** Temporary folder so persistence tests never touch real storage. */
     @TempDir
     public Path temporaryFolder;
+
+    @Test
+    public void save_staleInstance_preservesOtherInstancesTasks() throws IOException {
+        Path filePath = temporaryFolder.resolve("shared.txt");
+        Files.writeString(filePath, "T | 0 | original\n");
+        Storage first = new Storage(filePath.toString());
+        Storage second = new Storage(filePath.toString());
+        TaskList firstTasks = first.load();
+        TaskList secondTasks = second.load();
+        firstTasks.add(new Todo("first"));
+        first.save(firstTasks);
+        String saved = Files.readString(filePath);
+        secondTasks.add(new Todo("second"));
+        IOException exception = assertThrows(IOException.class, () -> second.save(secondTasks));
+        assertTrue(exception.getMessage().contains("changed since it was loaded"));
+        assertEquals(saved, Files.readString(filePath));
+        firstTasks.add(new Todo("third"));
+        first.save(firstTasks);
+        assertEquals(3, first.load().size());
+    }
+
+    @Test
+    public void save_fileCreatedAfterMissingLoad_rejectsOverwrite() throws IOException {
+        Path filePath = temporaryFolder.resolve("new.txt");
+        Storage storage = new Storage(filePath.toString());
+        TaskList tasks = storage.load();
+        Files.writeString(filePath, "T | 0 | created elsewhere\n");
+        assertThrows(IOException.class, () -> storage.save(tasks));
+        assertEquals("T | 0 | created elsewhere\n", Files.readString(filePath));
+    }
+
+    @Test
+    public void save_fileDeletedAfterLoad_rejectsStaleSave() throws IOException {
+        Path filePath = temporaryFolder.resolve("deleted.txt");
+        Files.writeString(filePath, "T | 0 | original\n");
+        Storage storage = new Storage(filePath.toString());
+        TaskList tasks = storage.load();
+        Files.delete(filePath);
+        assertThrows(IOException.class, () -> storage.save(tasks));
+        assertTrue(Files.notExists(filePath));
+    }
+
+    @Test
+    public void save_lockHeld_rejectsSaveAndAllowsRetry() throws IOException {
+        Path filePath = temporaryFolder.resolve("locked.txt");
+        Storage storage = new Storage(filePath.toString());
+        TaskList tasks = storage.load();
+        tasks.add(new Todo("pending"));
+        try (FileChannel channel = FileChannel.open(temporaryFolder.resolve("locked.txt.lock"),
+                StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                FileLock lock = channel.lock()) {
+            assertTrue(lock.isValid());
+            assertThrows(IOException.class, () -> storage.save(tasks));
+            assertTrue(Files.notExists(filePath));
+        }
+        storage.save(tasks);
+        assertEquals(1, storage.load().size());
+    }
 
     @Test
     public void load_emptyOrWhitespaceOnlyFile_allowsSavingWithoutWarning() throws IOException {
@@ -107,12 +168,13 @@ public class StorageTest {
         Path filePath = temporaryFolder.resolve("Baymax.txt");
         Files.writeString(filePath, "T | 0 | old task");
         Storage storage = new Storage(filePath.toString());
+        storage.load();
         TaskList tasks = new TaskList();
         tasks.add(new Todo("read caf\u00e9 notes"));
         storage.save(tasks);
         assertEquals("read caf\u00e9 notes", storage.load().get(0).getDescription());
         try (var files = Files.list(temporaryFolder)) {
-            assertEquals(1, files.count());
+            assertEquals(2, files.count());
         }
     }
 

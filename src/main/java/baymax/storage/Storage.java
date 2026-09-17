@@ -2,14 +2,22 @@ package baymax.storage;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 
 import baymax.exception.BaymaxException;
 import baymax.task.Deadline;
@@ -41,6 +49,8 @@ public class Storage {
 
     private final String filePath;
     private String loadWarning = "";
+    /** Exact bytes last loaded or saved; null means the file did not exist. */
+    private byte[] savedContent;
 
     /**
      * Creates a storage helper that reads from and writes to the given file path.
@@ -68,6 +78,35 @@ public class Storage {
         }
         Path target = Path.of(filePath).toAbsolutePath();
         Files.createDirectories(target.getParent());
+        target = target.getParent().toRealPath().resolve(target.getFileName());
+        Path lockPath = target.resolveSibling(target.getFileName() + ".lock");
+        try (FileChannel channel = FileChannel.open(lockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                FileLock lock = channel.tryLock()) {
+            if (lock == null) {
+                throw new IOException("Another Baymax instance is saving. Please retry.");
+            }
+            if (!Arrays.equals(savedContent, readContent(target))) {
+                throw new IOException("The data file changed since it was loaded. Your changes were not saved. "
+                        + "Copy any unsaved tasks, then restart Baymax to load the latest file.");
+            }
+            writeTasks(taskList, target);
+        } catch (OverlappingFileLockException exception) {
+            throw new IOException("Another Baymax instance is saving. Please retry.", exception);
+        }
+        // Keep the lock file: deleting it could let another process lock a different file.
+    }
+
+    /** Returns a snapshot, distinguishing a missing file from an empty one. */
+    private byte[] readContent(Path target) throws IOException {
+        try {
+            return Files.readAllBytes(target);
+        } catch (NoSuchFileException exception) {
+            return null;
+        }
+    }
+
+    /** Replaces the file while the caller holds the shared save lock. */
+    private void writeTasks(TaskList taskList, Path target) throws IOException {
         Path temporary = Files.createTempFile(target.getParent(), "baymax-", ".tmp");
         try {
             try (BufferedWriter writer = Files.newBufferedWriter(temporary)) {
@@ -76,11 +115,13 @@ public class Storage {
                     writer.newLine();
                 }
             }
+            byte[] nextContent = Files.readAllBytes(temporary);
             try {
                 Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
             } catch (AtomicMoveNotSupportedException exception) {
                 Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
             }
+            savedContent = nextContent;
         } finally {
             Files.deleteIfExists(temporary);
         }
@@ -98,7 +139,18 @@ public class Storage {
         TaskList taskList = new TaskList();
         loadWarning = "";
         int skippedRecords = 0;
-        try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
+        try {
+            savedContent = readContent(Path.of(filePath));
+            if (savedContent == null) {
+                return taskList;
+            }
+        } catch (IOException exception) {
+            loadWarning = "I have some concerns. I cannot read your care plan. "
+                    + "Check the data file and its permissions, then restart. Saving is disabled to protect it.";
+            return taskList;
+        }
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new ByteArrayInputStream(savedContent), StandardCharsets.UTF_8.newDecoder()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.isBlank()) {

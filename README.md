@@ -62,6 +62,12 @@ UTF-8 data to a temporary file before replacing the previous file, using an atom
 replacement when the filesystem supports it. The console also saves when input
 ends without `bye`. If saving fails after `bye`, input stays available for retry.
 
+Baymax checks for changes made by another instance before saving. If a conflict
+is reported, copy your unsaved tasks somewhere safe and restart to load the latest
+file. A `Baymax.txt.lock` file coordinates saves between instances; leave it in
+place while Baymax is running. The lock does not coordinate with external editors,
+so avoid editing the data file while the application is saving.
+
 If `data/Baymax.txt` cannot be read, or contains invalid or duplicate records,
 Baymax displays a warning and disables saving to protect the original file.
 Valid records remain available when individual records are invalid. Back up the

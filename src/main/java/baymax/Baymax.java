@@ -234,6 +234,7 @@ public class Baymax {
                     baymax.saveTasks();
                 } catch (IOException exception) {
                     ui.showSaveError();
+                    ui.showResponse(exception.getMessage());
                     ui.showSeparator();
                     continue;
                 }
@@ -248,6 +249,7 @@ public class Baymax {
             baymax.saveTasks();
         } catch (IOException exception) {
             ui.showSaveError();
+            ui.showResponse(exception.getMessage());
         }
         ui.close();
     }

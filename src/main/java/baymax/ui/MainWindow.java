@@ -111,7 +111,7 @@ public class MainWindow extends AnchorPane {
             bot.saveTasks();
         } catch (IOException exception) {
             dialogContainer.getChildren().add(DialogBox.getBaymaxDialog(
-                    "I have some concerns. I cannot save your care plan right now.",
+                    "I have some concerns. I cannot save your care plan right now.\n" + exception.getMessage(),
                     warningImage,
                     true));
             return;
