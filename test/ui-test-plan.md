@@ -171,7 +171,7 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  I have some concerns.
- Sorry, an event needs a start time.
+ Sorry, an event needs an end time.
 ____________________________________________________________
 ____________________________________________________________
  I have some concerns.
@@ -286,10 +286,265 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+### TC-007: Recover from invalid input and reject duplicate tasks
+
+- Aim: Verify whitespace normalization, missing arguments, invalid dates and ranges, repeated parameters, unsafe descriptions, and duplicates while keeping the task list usable.
+- Command: `python test/run_gradle_ui_test.py`
+- Inputs:
+```text
+  todo   buy   milk
+todo buy milk
+mark
+todo
+deadline report /by 2024-02-30
+deadline report /by 2024-01-01 /by 2024-01-02
+event meeting /from 2024-01-02 /to 2024-01-02
+todo unsafe|record
+  list
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] buy milk
+ You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, this task is already in your care plan.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, please provide a valid task number.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+     OOPS!!! The description of a todo cannot be empty.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, dates must use the format yyyy-MM-dd.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, use each date parameter once, in order: /by.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, an event must end after its start date.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, task descriptions cannot contain | or control characters.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] buy milk
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
+### TC-008: Load whitespace-only storage without a warning
+
+- Aim: Verify a whitespace-only data file starts normally and permits adding and saving a task without a storage warning.
+- Command: `python test/run_gradle_ui_test.py --blank-storage`
+- Inputs:
+```text
+todo new task
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] new task
+ You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
+### TC-009: Accept pasted non-breaking spaces
+
+- Aim: Verify a todo command surrounded by actual U+00A0 non-breaking spaces succeeds with assertions enabled. The first input line contains U+00A0 before todo and after milk.
+- Command: `python test/run_gradle_ui_test.py`
+- Inputs:
+```text
+ todo buy milk 
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] buy milk
+ You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
+### TC-010: Block unsavable changes after a corrupt load
+
+- Aim: Verify a corrupt file permits reading and exiting but rejects task changes without a false success message.
+- Command: `python test/run_gradle_ui_test.py --corrupt-storage`
+- Inputs:
+```text
+todo new task
+list
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+I have some concerns. Skipped 1 invalid or duplicate record(s). Repair the data file and restart. Saving is disabled to protect it.
+____________________________________________________________
+ I have some concerns.
+ Sorry, your care plan is read-only because loading failed. Repair the data file and restart Baymax before making changes.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] existing
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
+### TC-011: Reject unsupported date years
+
+- Aim: Verify year zero, negative years, and years beyond 9999 are rejected without adding tasks.
+- Command: `python test/run_gradle_ui_test.py`
+- Inputs:
+```text
+deadline zero /by 0000-01-01
+deadline negative /by -0001-01-01
+event distant /from 2026-01-01 /to +10000-01-01
+list
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
+### TC-012: Load a UTF-8 file with an initial BOM
+
+- Aim: Verify the encoding marker does not reject the first task or disable saving.
+- Command: `python test/run_gradle_ui_test.py --bom-storage`
+- Inputs:
+```text
+list
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] existing
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
 ## Latest test session
 
-- Recorded: 2026-09-16T20:02:37+08:00
-- Result: PASS (6 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
+- Recorded: 2026-09-17T11:14:11+08:00
+- Result: PASS (12 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text
 === TC-001: Exit immediately ===
@@ -436,7 +691,7 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
  I have some concerns.
- Sorry, an event needs a start time.
+ Sorry, an event needs an end time.
 ____________________________________________________________
 ____________________________________________________________
  I have some concerns.
@@ -539,6 +794,243 @@ ____________________________________________________________
 ____________________________________________________________
  I found these tasks in your care plan:
  1.[D][ ] return book (by: Jun 06 2019)
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-007: Recover from invalid input and reject duplicate tasks ===
+Command: python test/run_gradle_ui_test.py
+Console input:
+  todo   buy   milk
+todo buy milk
+mark
+todo
+deadline report /by 2024-02-30
+deadline report /by 2024-01-01 /by 2024-01-02
+event meeting /from 2024-01-02 /to 2024-01-02
+todo unsafe|record
+  list
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] buy milk
+ You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, this task is already in your care plan.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, please provide a valid task number.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+     OOPS!!! The description of a todo cannot be empty.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, dates must use the format yyyy-MM-dd.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, use each date parameter once, in order: /by.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, an event must end after its start date.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, task descriptions cannot contain | or control characters.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] buy milk
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-008: Load whitespace-only storage without a warning ===
+Command: python test/run_gradle_ui_test.py --blank-storage
+Console input:
+todo new task
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] new task
+ You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-009: Accept pasted non-breaking spaces ===
+Command: python test/run_gradle_ui_test.py
+Console input:
+ todo buy milk 
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] buy milk
+ You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-010: Block unsavable changes after a corrupt load ===
+Command: python test/run_gradle_ui_test.py --corrupt-storage
+Console input:
+todo new task
+list
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+I have some concerns. Skipped 1 invalid or duplicate record(s). Repair the data file and restart. Saving is disabled to protect it.
+____________________________________________________________
+ I have some concerns.
+ Sorry, your care plan is read-only because loading failed. Repair the data file and restart Baymax before making changes.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] existing
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-011: Reject unsupported date years ===
+Command: python test/run_gradle_ui_test.py
+Console input:
+deadline zero /by 0000-01-01
+deadline negative /by -0001-01-01
+event distant /from 2026-01-01 /to +10000-01-01
+list
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ I have some concerns.
+ Sorry, date years must be between 0001 and 9999.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-012: Load a UTF-8 file with an initial BOM ===
+Command: python test/run_gradle_ui_test.py --bom-storage
+Console input:
+list
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] existing
 ____________________________________________________________
 ____________________________________________________________
  I am satisfied with my care. Until next time.

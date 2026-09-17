@@ -59,7 +59,16 @@ public class Baymax {
      */
     public CommandResponse processCommand(String command) {
         try {
+            command = Parser.normalizeCommand(command);
             Parser.CommandType commandType = Parser.getCommandType(command);
+            boolean changesTasks = switch (commandType) {
+                case LIST, FIND, BYE -> false;
+                default -> true;
+            };
+            if (storage.isReadOnly() && changesTasks) {
+                return createConcernResponse(" Sorry, your care plan is read-only because loading failed. "
+                        + "Repair the data file and restart Baymax before making changes.");
+            }
 
             return switch (commandType) {
                 case BYE -> new CommandResponse(
@@ -80,12 +89,21 @@ public class Baymax {
     }
 
     /**
-     * Saves the current task list.
+     * Saves the current task list, or leaves the file untouched in read-only mode.
      *
      * @throws IOException if the task list cannot be written
      */
     public void saveTasks() throws IOException {
+        if (storage.isReadOnly()) {
+            // All mutations are blocked in this mode, so closing has nothing new to save.
+            return;
+        }
         storage.save(tasks);
+    }
+
+    /** Returns a warning when stored tasks could not be loaded safely. */
+    public String getLoadWarning() {
+        return storage.getLoadWarning();
     }
 
     private CommandResponse processMark(
@@ -212,6 +230,9 @@ public class Baymax {
         Ui ui = new Ui();
 
         ui.showWelcome();
+        if (!baymax.getLoadWarning().isEmpty()) {
+            ui.showResponse(baymax.getLoadWarning());
+        }
 
         while (ui.hasNextCommand()) {
             String command = ui.readCommand();
@@ -225,13 +246,23 @@ public class Baymax {
                     baymax.saveTasks();
                 } catch (IOException exception) {
                     ui.showSaveError();
+                    ui.showResponse(exception.getMessage());
+                    ui.showSeparator();
+                    continue;
                 }
                 ui.close();
                 ui.showSeparator();
-                break;
+                return;
             }
 
             ui.showSeparator();
         }
+        try {
+            baymax.saveTasks();
+        } catch (IOException exception) {
+            ui.showSaveError();
+            ui.showResponse(exception.getMessage());
+        }
+        ui.close();
     }
 }

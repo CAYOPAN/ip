@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import baymax.exception.BaymaxException;
+
 /**
  * Stores and manages Baymax's tasks.
  */
@@ -36,6 +38,9 @@ public class TaskList {
      */
     public void add(Task task) {
         assert task != null : "TaskList should only contain real tasks.";
+        if (tasks.stream().anyMatch(existing -> existing.hasSameDetails(task))) {
+            throw new BaymaxException(" Sorry, this task is already in your care plan.");
+        }
         tasks.add(task);
     }
 

@@ -3,6 +3,8 @@ package baymax.task;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import baymax.exception.BaymaxException;
+
 /**
  * Represents a task that starts at one specified date and ends at another
  * specified date.
@@ -26,6 +28,11 @@ public class Event extends Task {
         super(description);
         assert startDate != null : "Event start dates should be parsed before construction.";
         assert endDate != null : "Event end dates should be parsed before construction.";
+        TaskDate.validate(startDate);
+        TaskDate.validate(endDate);
+        if (!startDate.isBefore(endDate)) {
+            throw new BaymaxException(" Sorry, an event must end after its start date.");
+        }
         this.startDate = startDate;
         this.endDate = endDate;
     }

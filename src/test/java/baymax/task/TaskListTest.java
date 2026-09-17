@@ -1,15 +1,33 @@
 package baymax.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
+import baymax.exception.BaymaxException;
+
 /**
  * Tests task-list behavior that affects core task management features.
  */
 public class TaskListTest {
+    @Test
+    public void add_sameDetailsWithDifferentStatus_rejectsDuplicate() {
+        TaskList tasks = new TaskList();
+        Deadline original = new Deadline("work", LocalDate.of(2024, 1, 1));
+        original.markAsDone();
+        tasks.add(original);
+        assertThrows(BaymaxException.class, () -> tasks.add(new Deadline("work", LocalDate.of(2024, 1, 1))));
+        tasks.add(new Deadline("work", LocalDate.of(2024, 1, 2)));
+        tasks.add(new Todo("work"));
+        tasks.add(new Event("work", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 2)));
+        assertThrows(BaymaxException.class, () -> tasks.add(
+                new Event("work", LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 2))));
+        assertEquals(4, tasks.size());
+    }
+
 
     @Test
     public void find_keywordInTaskDescriptions_returnsMatchingTasksInOriginalOrder() {
