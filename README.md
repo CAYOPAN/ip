@@ -69,7 +69,9 @@ place while Baymax is running. The lock does not coordinate with external editor
 so avoid editing the data file while the application is saving.
 
 If `data/Baymax.txt` cannot be read, or contains invalid or duplicate records,
-Baymax displays a warning and disables saving to protect the original file.
+Baymax displays a warning and enters read-only mode to protect the original file.
+Adding, deleting, marking, and unmarking tasks are blocked. Listing, searching,
+and exiting remain available; exiting in this mode does not write the data file.
 Valid records remain available when individual records are invalid. Back up the
 file, correct its contents or permissions, and restart Baymax before making changes
 you need to save. A save failure in the JavaFX interface leaves input enabled.

@@ -20,6 +20,36 @@ public class BaymaxTest {
     public Path temporaryFolder;
 
     @Test
+    public void processCommand_corruptFile_blocksMutationsButAllowsReadingAndExit() throws IOException {
+        Path filePath = temporaryFolder.resolve("corrupt.txt");
+        String original = "T | 0 | existing\ninvalid record\n";
+        Files.writeString(filePath, original);
+        Baymax baymax = new Baymax(filePath.toString());
+        String before = baymax.processCommand("list").message();
+        for (String command : new String[]{"todo new", "deadline work /by 2026-09-20",
+            "event meeting /from 2026-09-20 /to 2026-09-21", "mark 1", "unmark 1", "delete 1"
+        }) {
+            Baymax.CommandResponse response = baymax.processCommand(command);
+            assertTrue(response.isError(), command);
+            assertTrue(response.message().contains("read-only"), command);
+            assertEquals(before, baymax.processCommand("list").message());
+        }
+        assertFalse(baymax.processCommand("find existing").isError());
+        assertTrue(baymax.processCommand("bye").shouldExit());
+        baymax.saveTasks();
+        assertEquals(original, Files.readString(filePath));
+    }
+
+    @Test
+    public void processCommand_unreadableFile_blocksNewTasks() throws IOException {
+        Baymax baymax = new Baymax(temporaryFolder.toString());
+        assertTrue(baymax.processCommand("todo unsavable").isError());
+        assertEquals(" Here is your current care plan:", baymax.processCommand("list").message());
+        baymax.saveTasks();
+        assertTrue(Files.isDirectory(temporaryFolder));
+    }
+
+    @Test
     public void processCommand_nonBreakingSpaces_matchesOrdinaryCommands() {
         Baymax normal = new Baymax(temporaryFolder.resolve("normal.txt").toString());
         Baymax pasted = new Baymax(temporaryFolder.resolve("pasted.txt").toString());

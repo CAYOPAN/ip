@@ -425,10 +425,48 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+### TC-010: Block unsavable changes after a corrupt load
+
+- Aim: Verify a corrupt file permits reading and exiting but rejects task changes without a false success message.
+- Command: `python test/run_gradle_ui_test.py --corrupt-storage`
+- Inputs:
+```text
+todo new task
+list
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+I have some concerns. Skipped 1 invalid or duplicate record(s). Repair the data file and restart. Saving is disabled to protect it.
+____________________________________________________________
+ I have some concerns.
+ Sorry, your care plan is read-only because loading failed. Repair the data file and restart Baymax before making changes.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] existing
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
 ## Latest test session
 
-- Recorded: 2026-09-17T11:04:54+08:00
-- Result: PASS (9 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
+- Recorded: 2026-09-17T11:07:01+08:00
+- Result: PASS (10 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text
 === TC-001: Exit immediately ===
@@ -808,6 +846,41 @@ ____________________________________________________________
  I have added this task to your care plan:
    [T][ ] buy milk
  You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-010: Block unsavable changes after a corrupt load ===
+Command: python test/run_gradle_ui_test.py --corrupt-storage
+Console input:
+todo new task
+list
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+I have some concerns. Skipped 1 invalid or duplicate record(s). Repair the data file and restart. Saving is disabled to protect it.
+____________________________________________________________
+ I have some concerns.
+ Sorry, your care plan is read-only because loading failed. Repair the data file and restart Baymax before making changes.
+____________________________________________________________
+____________________________________________________________
+ Here is your current care plan:
+ 1.[T][ ] existing
 ____________________________________________________________
 ____________________________________________________________
  I am satisfied with my care. Until next time.

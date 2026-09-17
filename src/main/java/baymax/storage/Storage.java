@@ -186,6 +186,11 @@ public class Storage {
         return loadWarning;
     }
 
+    /** Returns whether a failed or incomplete load prevents safe changes. */
+    public boolean isReadOnly() {
+        return !loadWarning.isEmpty();
+    }
+
     /**
      * Parses one storage record, returning {@code null} for a malformed record.
      *
