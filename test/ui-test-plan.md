@@ -392,10 +392,43 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+### TC-009: Accept pasted non-breaking spaces
+
+- Aim: Verify a todo command surrounded by actual U+00A0 non-breaking spaces succeeds with assertions enabled. The first input line contains U+00A0 before todo and after milk.
+- Command: `python test/run_gradle_ui_test.py`
+- Inputs:
+```text
+ todo buy milk 
+bye
+```
+- Expected output:
+```text
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] buy milk
+ You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+```
+
 ## Latest test session
 
-- Recorded: 2026-09-16T20:44:25+08:00
-- Result: PASS (8 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
+- Recorded: 2026-09-17T10:39:19+08:00
+- Result: PASS (9 passed, 0 failed, 0 skipped; java version "25.0.4.1" 2026-08-18 LTS)
 
 ````text
 === TC-001: Exit immediately ===
@@ -744,6 +777,36 @@ ____________________________________________________________
 ____________________________________________________________
  I have added this task to your care plan:
    [T][ ] new task
+ You now have 1 task under my care.
+____________________________________________________________
+____________________________________________________________
+ I am satisfied with my care. Until next time.
+____________________________________________________________
+
+Status: PASS
+
+=== TC-009: Accept pasted non-breaking spaces ===
+Command: python test/run_gradle_ui_test.py
+Console input:
+ todo buy milk 
+bye
+
+Console output:
+____________________________________________________________
+BBBB   aaa   y   y  m     m   aaa   x   x
+B   B a   a  y   y  mm   mm  a   a  x   x
+B   B a   a   y y   m m m m  a   a   x x
+BBBB  aaaaa    y    m  m  m  aaaaa    x
+B   B a   a    y    m     m  a   a   x x
+B   B a   a    y    m     m  a   a  x   x
+BBBB  a   a    y    m     m  a   a  x   x
+Hello. I am Baymax, your personal task companion.
+I am here to keep your tasks healthy and organized.
+How may I assist you?
+____________________________________________________________
+____________________________________________________________
+ I have added this task to your care plan:
+   [T][ ] buy milk
  You now have 1 task under my care.
 ____________________________________________________________
 ____________________________________________________________

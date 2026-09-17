@@ -76,7 +76,11 @@ public final class Parser {
         if (command.chars().anyMatch(value -> Character.isISOControl(value) && value != '\t')) {
             throw new BaymaxException(" Sorry, please enter one command on a single line.");
         }
-        return command.strip().replaceAll("\\h+", " ");
+        String normalizedCommand = command.replaceAll("\\h+", " ").strip();
+        if (normalizedCommand.isEmpty()) {
+            throw new BaymaxException(" Sorry, please enter a command.");
+        }
+        return normalizedCommand;
     }
 
     /**

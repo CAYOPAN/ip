@@ -20,6 +20,29 @@ public class BaymaxTest {
     public Path temporaryFolder;
 
     @Test
+    public void processCommand_nonBreakingSpaces_matchesOrdinaryCommands() {
+        Baymax normal = new Baymax(temporaryFolder.resolve("normal.txt").toString());
+        Baymax pasted = new Baymax(temporaryFolder.resolve("pasted.txt").toString());
+        for (String command : new String[]{"todo buy milk", "deadline report /by 2026-09-20",
+            "event meeting /from 2026-09-20 /to 2026-09-21", "find milk", "mark 1",
+            "unmark 1", "delete 1", "list", "bye"
+        }) {
+            String pastedCommand = "\u00a0" + command.replace(" ", "\u00a0") + "\u00a0";
+            assertEquals(normal.processCommand(command), pasted.processCommand(pastedCommand), command);
+        }
+    }
+
+    @Test
+    public void processCommand_nonBreakingSpacesOnly_returnsFriendlyError() {
+        Baymax baymax = new Baymax(temporaryFolder.resolve("Baymax.txt").toString());
+        Baymax.CommandResponse response = baymax.processCommand("\u00a0 \t\u00a0");
+        assertTrue(response.isError());
+        assertFalse(response.shouldExit());
+        assertEquals(" I have some concerns." + System.lineSeparator() + " Sorry, please enter a command.",
+                response.message());
+    }
+
+    @Test
     public void processCommand_whitespaceAndDuplicates_preservesValidState() {
         Baymax baymax = new Baymax(temporaryFolder.resolve("Baymax.txt").toString());
         assertFalse(baymax.processCommand("  todo\t buy   milk  ").isError());

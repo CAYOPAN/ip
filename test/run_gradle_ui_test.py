@@ -30,6 +30,7 @@ def main() -> int:
         return build_result.returncode
 
     shadow_jar = repo_root / "build" / "libs" / "baymax.jar"
+    sys.stdin.reconfigure(encoding="utf-8")
     console_input = sys.stdin.read()
     with tempfile.TemporaryDirectory(prefix="baymax-ui-test-") as work_dir:
         if arguments.blank_storage:
@@ -41,6 +42,7 @@ def main() -> int:
             cwd=work_dir,
             input=console_input,
             text=True,
+            encoding="utf-8",
             check=False,
         )
         return app_result.returncode
